@@ -71,18 +71,16 @@ def createkpoints(path):
 	shutill.copy(syml_path, path + "/syml")
 	os.system("cd " + path +";~/exe/")
 
-def createBAND(path = "EIGENVAL",fermi = None, INCAR_path = None ,savepath = "./band.dat"):
-	meta,title,data = getBandData(path)
+def createBAND(path1 = "EIGENVAL",path2 = "syml",fermi = None, INCAR_path = None ,savepath = "./bnd.dat"):
+	meta,title,data = getBandData(path1)
+	_,l2 = getBandXaxis()
 	with open("bnd.dat","w") as file:
-	print(len(data))
-	print(meta)
-	print(len(data[1]))
-	for i in range(meta[1]):
-		mystr = str(i)
-		for j in range(meta[2]):
-			mystr += "    %f" % data[i*meta[2]+j][1]
-		mystr += "\n"
-		file.write(mystr)
+		for i in range(meta[1]):
+			mystr = str(l2[i])
+			for j in range(meta[2]):
+				mystr += "    %f" % data[i*meta[2]+j][1]
+			mystr += "\n"
+			file.write(mystr)
 
 
 '''
@@ -136,7 +134,7 @@ def getBandXaxis(path = "syml"):
 	temp = list_sum(l)
 	steps = [l[i] / sn[i-1] for i in range(1,len(l))]
 	l2 = list_step(0,sn,steps)
-	return l,l2
+	return temp,l2
 
 
 def getDosData(mission, format="file"):
@@ -249,4 +247,6 @@ def list_step(start,steps,step_list):
 
 
 if __name__ == "__main__":
-	getBandData()
+	createBAND()
+	# l1,l2 = getBandXaxis()
+	# print(l1)	
