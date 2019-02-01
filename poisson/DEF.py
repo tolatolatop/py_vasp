@@ -1,0 +1,3 @@
+ONLY_A = 0
+ONLY_B = 1
+BOTH_AB = 2
