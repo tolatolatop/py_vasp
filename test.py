@@ -8,4 +8,3 @@ root = root / "database"
 for poscar in vutils.poscarLoadingTools("./database/poscar_all"):
 	print(poscar)
 	vutils.scfCalc(poscar,root)
-
