@@ -191,9 +191,8 @@ def poissonShow(name,xData,yData,zData,energry):
 	print("energry:%s" % " ".join(["%.3f " % i for i in energry]))
 	print("---------------------------------------------")
 
-def getSpaceGroupName(path = "POSCAR"):
+def getSpaceGroupName():
 	import os
-	abspath = os.path.abspath(path)
 	for i in os.popen("aflow --kpath < POSCAR | grep Line -B 2 | head -n 1 | awk '{print $1}'"):
 		spacegroupname = i[:-1]
 	return spacegroupname

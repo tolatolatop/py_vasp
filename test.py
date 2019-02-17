@@ -1,4 +1,4 @@
-from simplescalc import vutils
+from simplecalc import vutils
 from poisson.vutils import poscarLoadingTools
 from pylada.jobfolder import JobFolder
 import pylada
