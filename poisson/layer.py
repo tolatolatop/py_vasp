@@ -253,7 +253,7 @@ def copyorlinkfile(dirpath,filename,cmd = "cp"):
 	def new(job):
 		@tools.cellcall(job.params["call"])
 		def func(job):
-			abspath = os.path.abspath(path)
+			abspath = os.path.abspath(os.path.join(job.name[1:],path))
 			if not os.path.exists(abspath):
 				raise IOError("Can't found " + abspath)
 			res =  os.system("%s %s %s" % (cmd,abspath,os.path.join(job.name[1:],filename)))
@@ -309,7 +309,7 @@ def aflowkpoints(poscarname = "POSCAR"):
 			tools.getSpaceGroupName(poscarname)
 			syml_path = os.path.join(os.environ["SYML"] ,"syml_"+ spacegroupname +"_original")
 			print("syml_" + spacegroupname + "_original")
-			shutill.copy(syml_path, job.name[1:] + "/syml")
+			#shutill.copy(syml_path, job.name[1:] + "/syml")
 			os.system("ln -s %s %s;adogk" % (cmd,syml_path,"syml"))
 		job.params["call"] = func
 		yield job
