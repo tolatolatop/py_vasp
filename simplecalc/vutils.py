@@ -37,17 +37,39 @@ def scfCalc(root, poscar,inherit = True, common = config.COMMON["nodeParams"]):
 
 
 def bandCalc(root, poscar, inherit = True, common = config.COMMON["nodeParams"]):
-		import os
+	import os
 	import re
-	job = root / poscar / "scf"
+	job = root / poscar / "band"
 	if inherit:
-		relaxCalc(root, poscar, common = common)
+		scfCalc(root, poscar, common = common)
 		job.params["poscar"] = os.path.join(job.parent.name[1:],"relax","CONTCAR")
+		job.params["chgcar"] = os.path.join(job.parent.name[1:],"scf","CHGCAR")
+		job.params["wavecar"] = os.path.join(job.parent.name[1:],"scf","WAVECAR")
 	else:
 		job.params["poscar"] = root.name[1:] + "/poscar_all/" + poscar
 	job.params["common"] = common
 	job.params["optcell"] = (1,1,1)
 	job.params["kpoints"] = tools.aflowkpoints(job.name[1:],job.params["poscar"])
+	job.params["incar"] = root.name[1:] + "/incar/INCAR_BAND"
+	job.params["potcar"] = re.findall("[a-zA-Z_]+",poscar.split("-")[1])
+	job.functional = tools.compute
+	job.compute(outdir = job.name[1:],common = common)
+
+def dosCalc(root, poscar, inherit = True, common = config.COMMON["nodeParams"]):
+	import os
+	import re
+	job = root / poscar / "dos"
+	if inherit:
+		scfCalc(root, poscar, common = common)
+		job.params["poscar"] = os.path.join(job.parent.name[1:],"relax","CONTCAR")
+		job.params["chgcar"] = os.path.join(job.parent.name[1:],"scf","CHGCAR")
+		job.params["wavecar"] = os.path.join(job.parent.name[1:],"scf","WAVECAR")
+		job.params["kpoints"] = os.path.join(job.parent.name[1:],"relax","KPOINTS")
+	else:
+		job.params["poscar"] = root.name[1:] + "/poscar_all/" + poscar
+		job.params["kpoints"] = root.name[1:] + "/kpoints/KPOINTS_SCF"
+	job.params["common"] = common
+	job.params["optcell"] = (1,1,1)
 	job.params["incar"] = root.name[1:] + "/incar/INCAR_BAND"
 	job.params["potcar"] = re.findall("[a-zA-Z_]+",poscar.split("-")[1])
 	job.functional = tools.compute
