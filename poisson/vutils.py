@@ -16,14 +16,14 @@ def bandCalc(poscar, root, inherit = True, common = config.COMMON["nodeParams"])
 	job.params["call"] = tools.job._blank
 	if inherit:
 		scfCalc(poscar, root, common = common)
-	rlayer = layer.getincar(None,incar = "$INCAR/INCAR_BAND")
+	rlayer = layer.getincar(None,incar = "../../incar/INCAR_BAND")
 	rlayer = layer.copychgcarfrom(rlayer,dirname = "../scf")
 	rlayer = layer.copywavecarfrom(rlayer,dirname = "../scf")
-	rlayer = layer.setoptcell(rlayer, optcell = [1,1,0])
-	rlayer = layer.loadkpoints(rlayer,filename = "../relax/KPOINTS")
-	#rlayer = layer.aflowkpoints(rlayer,filename = "../relax/KPOINTS")
 	rlayer = layer.loadstructure(rlayer,filename = "../relax/CONTCAR")
-	rlayer = layer.setSpecie(rlayer,specie = nametospecie(poscar))
+	rlayer = layer.aflowkpoints(rlayer)
+	rlayer = layer.setoptcell(rlayer, optcell = [1,1,0])
+	#rlayer = layer.aflowkpoints(rlayer,filename = "../relax/KPOINTS")
+	rlayer = layer.setspecie(rlayer,specie = nametospecie(poscar))
 	rlayer= layer.compute(rlayer,common = common)
 	for i in rlayer(job):
 		i.params["call"](i)
@@ -31,12 +31,12 @@ def bandCalc(poscar, root, inherit = True, common = config.COMMON["nodeParams"])
 def relaxCalc(poscar, root, common = config.COMMON["nodeParams"]):
 	job = root / poscar / "relax"
 	job.params["call"] = tools.job._blank
-	rlayer = layer.getincar(None, incar = "$INCAR/INCAR_RELAX_PBE")
+	rlayer = layer.getincar(None, incar = "../../incar/INCAR_RELAX_PBE")
 	rlayer = layer.loadstructure(rlayer,filename = "../../poscar_all/" + poscar)
 	rlayer = layer.loadkpoints(rlayer,filename = "../../kpoints/KPOINTS_RELAX")
-	rlayer = layer.setSpecie(rlayer,specie = nametospecie(poscar))
+	rlayer = layer.setspecie(rlayer,specie = nametospecie(poscar))
 	rlayer = layer.setoptcell(rlayer, optcell = [1,1,0])
-	rlayer = layer.compute(rlayer,common = common)
+	rlayer = layer.compute(rlayer,common = common, maxLoop = 10)
 	for i in rlayer(job):
 		i.params["call"](i)
 
@@ -47,10 +47,10 @@ def scfCalc(poscar, root, inherit = True, common = config.COMMON["nodeParams"]):
 	job.params["call"] = tools.job._blank
 	if inherit:
 		relaxCalc(poscar, root, common = common)
-	rlayer = layer.getincar(None,incar = "$INCAR/INCAR_SCF")
+	rlayer = layer.getincar(None,incar = "../../incar/INCAR_SCF")
 	rlayer = layer.loadkpoints(rlayer,filename = "../relax/KPOINTS")
 	rlayer = layer.loadstructure(rlayer,filename = "../relax/CONTCAR")
-	rlayer = layer.setSpecie(rlayer,specie = nametospecie(poscar))
+	rlayer = layer.setspecie(rlayer,specie = nametospecie(poscar))
 	rlayer = layer.setoptcell(rlayer, optcell = [1,1,0])
 	rlayer= layer.compute(rlayer,common = common)
 	for i in rlayer(job):
@@ -62,13 +62,12 @@ def dosCalc(poscar, root, inherit = True, common = config.COMMON["nodeParams"]):
 	job.params["call"] = tools.job._blank
 	if inherit:
 		scfCalc(poscar, root, common = common)
-	rlayer = layer.getincar(None,incar = "$INCAR/INCAR_DOS")
+	rlayer = layer.getincar(None,incar = "../../incar/INCAR_DOS")
 	rlayer = layer.copychgcarfrom(rlayer,dirname = "../scf")
 	rlayer = layer.copywavecarfrom(rlayer,dirname = "../scf")
 	rlayer = layer.loadkpoints(rlayer,filename = "../relax/KPOINTS")
-	#rlayer = layer.doublekpoints(rlayer,filename = "../relax/KPOINTS")
 	rlayer = layer.loadstructure(rlayer,filename = "../relax/CONTCAR")
-	rlayer = layer.setSpecie(rlayer,specie = nametospecie(poscar))
+	rlayer = layer.setspecie(rlayer,specie = nametospecie(poscar))
 	rlayer = layer.setoptcell(rlayer, optcell = [1,1,0])
 	rlayer= layer.compute(rlayer,common = common)
 	for i in rlayer(job):
@@ -97,7 +96,7 @@ def hsebandCalc(poscar, root, inherit = True, common = config.COMMON["nodeParams
 	rlayer = layer.loadkpoints(rlayer,filename = "../relax/KPOINTS")
 	#rlayer = layer.specialkpoints(rlayer,filename = "../relax/KPOINTS")
 	rlayer = layer.loadstructure(rlayer,filename = "../relax/CONTCAR")
-	rlayer = layer.setSpecie(rlayer,specie = nametospecie(poscar))
+	rlayer = layer.setspecie(rlayer,specie = nametospecie(poscar))
 	rlayer = layer.setoptcell(rlayer, optcell = [1,1,0])
 	#rlayer= layer.compute(rlayer,common = common)
 	for i in rlayer(job):

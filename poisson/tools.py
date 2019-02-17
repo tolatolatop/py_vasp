@@ -85,7 +85,7 @@ def loopToRelax(maxLoop = 10):
 		def new(job):
 			print("-----------COMPUTE:start-----------")
 			print("name:" + job.name[1:])
-			with Changedir(job.name[1:]) as pwd:
+			if maxLoop > 0:
 				for i in range(maxLoop - 1):
 					with Changedir("Relax_%02d" % i) as pwd:
 						func(job)
@@ -95,7 +95,7 @@ def loopToRelax(maxLoop = 10):
 						break
 				else:
 					raise Exception("It's not convergence")
-				func(job)
+			func(job)
 			print("-----------COMPUTE:end-------------")
 		return new
 	return www
@@ -103,7 +103,8 @@ def loopToRelax(maxLoop = 10):
 def fallback(r_job):
 	def www(func):
 		def new(job):
-			func(r_job)
+			with Changedir(r_job) as pwd:
+				func(r_job)
 			job.params['structure'] = r_job.params['result'].structure
 			job.params['vasp'] = r_job.params['vasp']
 			job.params['result'] = r_job.params['result']
@@ -189,3 +190,10 @@ def poissonShow(name,xData,yData,zData,energry):
 	print("vacuum:%s" % " ".join(["%.3f " % i for i in zData]))
 	print("energry:%s" % " ".join(["%.3f " % i for i in energry]))
 	print("---------------------------------------------")
+
+def getSpaceGroupName(path = "POSCAR"):
+	import os
+	abspath = os.path.abspath(path)
+	for i in os.popen("aflow --kpath < POSCAR | grep Line -B 2 | head -n 1 | awk '{print $1}'"):
+		spacegroupname = i[:-1]
+	return spacegroupname
