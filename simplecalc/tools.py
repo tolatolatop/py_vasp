@@ -1,12 +1,12 @@
-def looptorelax(outdir, maxloop, **kwargs):
+def looptorelax(outdir, maxLoop, **kwargs):
 	for i in range(maxloop):
-		result = compute(outdir + "relax_%d" % i, common = kwargs["common"], **kwargs)
+		result = compute(outdir + "relax_%d" % i, **kwargs)
 		kwargs["poscar"] = outdir + "relax_%d/" % i + "CONTCAR"
 		if len(result.total_energies) == 1:
 			break
 	else:
 		raise Exception("It's not convergence")
-	return compute(outdir, common = kwargs["common"], **kwargs)
+	return compute(outdir, **kwargs)
 
 def compute(outdir, common ,**kwargs):
 	from pylada.vasp import read_incar
