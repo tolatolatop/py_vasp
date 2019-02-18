@@ -10,7 +10,7 @@ def relaxCalc(root, poscar, common = config.COMMON["nodeParams"], scan = False, 
 	if scan:
 		job.params["incar"] = root.name[1:] + "/incar/INCAR_RELAX_SCAN_0"
 		job.params["dfile"] = "incar_scan" 
-	else
+	else:
 		job.params["incar"] = root.name[1:] + "/incar/INCAR_RELAX_PBE"
 	job.params["maxLoop"] = 10
 	job.params["kpoints"] = root.name[1:] + "/kpoints/KPOINTS_RELAX"
