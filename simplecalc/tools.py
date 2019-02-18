@@ -18,14 +18,27 @@ def compute(outdir, common ,**kwargs):
 	vasp.lwave = True
 	for pot in kwargs["potcar"]:
 		vasp.add_specie = pot.split("_")[0], os.path.join(os.environ["PAW"], pot)
+
 	if "optcell" in kwargs.keys():
 		writeoptcell(outdir, kwargs["optcell"])
 	if "chgcar" in kwargs.keys():
 		copyorlinkfile(outdir, "CHGCAR", kwargs["chgcar"], "cp")
 	if "wavecar" in kwargs.keys():
 		copyorlinkfile(outdir, "WAVECAR", kwargs["wavecar"], "cp")
-	with open(kwargs["kpoints"],"r") as rfile:
-		vasp.kpoints = rfile.read()
+	if "dfile" in kwargs.keys():
+		if not os.path.exists(os.path.join(outdir,"DFILE")):
+			with open(os.path.join(outdir,"DFILE"),"w") as f:
+				f.write(kwargs["dfile"])
+	if "kpointscell" in kwargs.keys():
+		import numpy as np
+		kpoint = "Automatic generation\n0\nMonkhorst\n%d %d %d\n0 0 0"
+		diag = np.diag(structure.cell)
+		tmp = np.array(kwargs["kpointscell"]) // diag
+		tmp[tmp == 0] = 1
+		vasp.kpoints = kpoint % (tuple(tmp))
+	else:
+		with open(kwargs["kpoints"],"r") as rfile:
+			vasp.kpoints = rfile.read()
 	return vasp(structure, outdir = outdir, comm = common)
 
 def writeoptcell(outdir, optcell):
@@ -65,3 +78,27 @@ def getSpaceGroupName():
 	for i in os.popen("aflow --kpath < POSCAR | grep Line -B 2 | head -n 1 | awk '{print $1}'"):
 		spacegroupname = i[:-1]
 	return spacegroupname
+
+def strainstructure(orgposcar, strain , direct):
+	import uuid
+	import os
+	import numpy as np
+	from pylada.crystal import write,read
+	root = "/tmp"
+	uuid_str = uuid.uuid4().hex
+	tmp_file_name = 'tmpfile_%s.txt' % uuid_str
+	tmp_path = os.path.join(root,tmp_file_name)
+	structure = read.poscar(orgposcar)
+	a = np.array([1.0,1.0,1.0])
+	if direct == "a":
+		a[0] = strain
+	elif direct == "b":
+		a[1] = strain
+	elif direct == "c":
+		a[2] = strain
+	A = np.diag(a)
+	structure.cell = structure.cell * A
+	for atom in structure:
+		atom.pos = atom.pos * a
+	write.poscar(structure, tmp_path, vasp = 5)
+	return tmp_path
