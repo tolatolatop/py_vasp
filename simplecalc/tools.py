@@ -14,11 +14,15 @@ def compute(outdir, common ,**kwargs):
 	import os
 	structure = read.poscar(kwargs["poscar"])
 	vasp = read_incar(kwargs["incar"])
-	vasp.lcharg = True
-	vasp.lwave = True
+
 	for pot in kwargs["potcar"]:
 		vasp.add_specie = pot.split("_")[0], os.path.join(os.environ["PAW"], pot)
-
+	vasp.lcharg = True
+	vasp.lwave = True
+	if "writechg" in kwargs.keys():
+		vasp.lcharg = kwargs["writechg"]
+	if "writewave" in kwargs.keys():
+		vasp.lcharg = kwargs["writewave"]
 	if "optcell" in kwargs.keys():
 		writeoptcell(outdir, kwargs["optcell"])
 	if "chgcar" in kwargs.keys():
@@ -53,9 +57,18 @@ def aflowkpoints(outdir, poscarsource):
 	copyorlinkfile(outdir, "POSCAR", poscarsource, "cp")
 	from pylada.misc import Changedir
 	with Changedir(outdir) as pwd:
-		spacegroupname = getSpaceGroupName()
-		copyorlinkfile("." ,"syml", os.path.join(os.environ["SYML"],"syml_" + spacegroupname + "_original"), "ln -s")
-		os.system("adogk")
+		with open("KPOINTS","w") as wfile:
+			tmp = []
+			try:
+				for i in os.popen("aflow --kpath < POSCAR "):
+					tmp.append(i)
+				index = tmp.index("Line-mode\n")
+				kpoints = tmp[index-2:-1]
+				if len(kpoints) < 1:
+					raise Exception("aflow error")
+			except Exception as e:
+				raise e
+			wfile.writelines(kpoints)
 		kpoints = os.path.abspath("KPOINTS")
 	return kpoints
 
@@ -100,5 +113,21 @@ def strainstructure(orgposcar, strain , direct):
 	structure.cell = structure.cell * A
 	for atom in structure:
 		atom.pos = atom.pos * a
-	write.poscar(structure, tmp_path, vasp = 5)
+	write.poscar(structure, tmp_path, vasp5 = True)
 	return tmp_path
+
+def poscarLoadingTools(path):
+	"""
+		@param inputlayer : front layer 
+		@param path : path of POSCAR_ALL
+		@return a dict of outputLayer 
+	"""
+	poscarList = []
+	from pylada.crystal import read
+	for r,d,files in os.walk(path):
+		for filename in files:
+			poscarList.append(filename)
+
+	outLayerDict = {}
+	for poscar in poscarList:
+		yield poscar

@@ -50,6 +50,8 @@ def bandCalc(root, poscar, inherit = True, common = config.COMMON["nodeParams"])
 		job.params["wavecar"] = os.path.join(job.parent.name[1:],"scf","WAVECAR")
 	else:
 		job.params["poscar"] = root.name[1:] + "/poscar_all/" + poscar
+	job.params["writewave"] = False
+	job.params["writechg"] = False
 	job.params["common"] = common
 	job.params["kpoints"] = tools.aflowkpoints(job.name[1:],job.params["poscar"])
 	job.params["incar"] = root.name[1:] + "/incar/INCAR_BAND"
@@ -70,8 +72,10 @@ def dosCalc(root, poscar, inherit = True, common = config.COMMON["nodeParams"]):
 	else:
 		job.params["poscar"] = root.name[1:] + "/poscar_all/" + poscar
 		job.params["kpoints"] = root.name[1:] + "/kpoints/KPOINTS_DOS"
+	job.params["writewave"] = False
+	job.params["writechg"] = False
 	job.params["common"] = common
-	job.params["incar"] = root.name[1:] + "/incar/INCAR_BAND"
+	job.params["incar"] = root.name[1:] + "/incar/INCAR_DOS"
 	job.params["potcar"] = re.findall("[a-zA-Z_]+",poscar.split("-")[1])
 	job.functional = tools.compute
 	job.compute(outdir = job.name[1:])

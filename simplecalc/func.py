@@ -1,6 +1,6 @@
 from simplecalc import vutils,tools
 from simplecalc import config
-def poissonCalc(root, orgposcar, kpointsCell, scales = [1.01, 0.09], inherit = True,
+def poissonCalc(root, orgposcar, kpointsCell, optcell, scales = [1.01, 0.09], inherit = True,
 		direction = ['a','b'], vacuum = "c", common = config.COMMON["nodeParams"],
 		scan = False):
 	import os
@@ -9,7 +9,7 @@ def poissonCalc(root, orgposcar, kpointsCell, scales = [1.01, 0.09], inherit = T
 	poissonJob = root / orgposcar / "poisson"
 
 	if inherit:
-		vutils.relaxCalc(root, orgposcar, common = common)
+		vutils.relaxCalc(root, orgposcar, common = common, scan = scan, optcell = optcell)
 		poscarpath = os.path.join(poissonJob.parent.name[1:],"relax","CONTCAR")
 	else:
 		poscarpath = os.path.join(root.name[1:],"poscar_all",orgposcar)
