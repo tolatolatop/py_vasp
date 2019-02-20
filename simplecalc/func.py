@@ -24,7 +24,7 @@ def poissonCalc(root, orgposcar, kpointsCell, optcell, scales = [1.01, 0.09], in
 		elif direct == "b":
 			optcell[1] = 0
 		r_optcell = tuple(optcell)
-		pjob = poissonJob / ("strian_1_%s" % (direct))
+		pjob = poissonJob / ("strain_1_%s" % (direct))
 		vutils.strainCalc(pjob, poscarpath, potcar, r_optcell, 1, direct, kpointsCell, common = common, scan = scan)
 		poscar = os.path.join(pjob.name[1:], "CONTCAR")
 		for scale in scales:

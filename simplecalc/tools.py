@@ -117,6 +117,7 @@ def strainstructure(orgposcar, strain , direct):
 	return tmp_path
 
 def poscarLoadingTools(path):
+	import os
 	"""
 		@param inputlayer : front layer 
 		@param path : path of POSCAR_ALL

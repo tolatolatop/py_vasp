@@ -1,5 +1,14 @@
 def bandDrawing(vasppath):
-	pass
+	import os,re
+	with open(os.path.join(vasppath,"KPOINTS"),"r") as rfile:
+		tmp = rfile.readlines()
+	head = tmp[0];kint = int(tmp[1])
+	re_str = re.complie("[A-Z\-]+")
+	kpath = re_str.findall(head)
+	kpath = [i.splite("-") for i in kpath]
+	for line in kpath:
+		for keypoints in line:
+
 
 def dosDrawing(vasppath):
 	pass
@@ -26,7 +35,7 @@ def poissonData(vasppathList, standpath, xaxis = "a-length", yaxis = "b-length")
 	for vasppath in vasppathList:
 		tmp = strainData(vasppath)
 		dataList.append(tmp)
-	xaxisList = [0];yaxisList = [0]
+	xaxisList = [];yaxisList = []
 	for data in dataList:
 		xaxisList.append(data[xaxis] - stand[xaxis])
 		yaxisList.append(data[yaxis] - stand[yaxis])

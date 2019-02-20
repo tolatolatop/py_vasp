@@ -12,6 +12,8 @@ def relaxCalc(root, poscar, common = config.COMMON["nodeParams"], scan = False, 
 		job.params["dfile"] = "incar_scan" 
 	else:
 		job.params["incar"] = root.name[1:] + "/incar/INCAR_RELAX_PBE"
+	job.params["writechg"] = False
+	job.params["writechg"] = False
 	job.params["maxLoop"] = 10
 	job.params["kpoints"] = root.name[1:] + "/kpoints/KPOINTS_RELAX"
 	job.params["poscar"] = root.name[1:] + "/poscar_all/" + poscar
@@ -90,6 +92,8 @@ def strainCalc(job, poscar, potcar, optcell, scale, direct, kpointsCell, common 
 	else:
 		job.params["incar"] = job.parent.parent.parent.name[1:] + "/incar/INCAR_RELAX_PBE"
 	poscar = tools.strainstructure(poscar, strain = scale, direct = direct)
+	job.params["writechg"] = False
+	job.params["writechg"] = False
 	job.params["maxLoop"] = 10
 	job.params["poscar"] = poscar
 	job.params["optcell"] = optcell
