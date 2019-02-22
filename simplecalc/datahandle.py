@@ -39,6 +39,6 @@ def poissonData(vasppathList, standpath, xaxis = "a-length", yaxis = "b-length")
 	for data in dataList:
 		xaxisList.append(data[xaxis] - stand[xaxis])
 		yaxisList.append(data[yaxis] - stand[yaxis])
-	xaxisList.sort();yaxisList.sort()
-	return {"xaxis":xaxisList,"yaxis":yaxisList}
-
+	datalist = list(zip(xaxisList,yaxisList))
+	datalist.sort(key = lambda x:x[0])
+	return {"xaxis":[i[0] for i in datalist],"yaxis":[j[1] for j in datalist]}

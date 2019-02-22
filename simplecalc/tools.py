@@ -17,12 +17,14 @@ def compute(outdir, common ,**kwargs):
 
 	for pot in kwargs["potcar"]:
 		vasp.add_specie = pot.split("_")[0], os.path.join(os.environ["PAW"], pot)
-	vasp.lcharg = True
-	vasp.lwave = True
 	if "writechg" in kwargs.keys():
 		vasp.lcharg = kwargs["writechg"]
+	else:
+		vasp.lcharg = True
 	if "writewave" in kwargs.keys():
-		vasp.lcharg = kwargs["writewave"]
+		vasp.lwave = kwargs["writewave"]
+	else:
+		vasp.lwave = True
 	if "optcell" in kwargs.keys():
 		writeoptcell(outdir, kwargs["optcell"])
 	if "chgcar" in kwargs.keys():
@@ -41,9 +43,17 @@ def compute(outdir, common ,**kwargs):
 		tmp[tmp == 0] = 1
 		vasp.kpoints = kpoint % (tuple(tmp))
 	else:
-		with open(kwargs["kpoints"],"r") as rfile:
-			vasp.kpoints = rfile.read()
-	return vasp(structure, outdir = outdir, comm = common)
+		if "kspacing" in kwargs.keys():
+			pass
+		else:
+			with open(kwargs["kpoints"],"r") as rfile:
+				vasp.kpoints = rfile.read()
+	try:
+		result = vasp(structure, outdir = outdir, comm = common)
+	except Exception as e:
+		print("path:" + outdir)
+		raise e
+	return result
 
 def writeoptcell(outdir, optcell):
 	import os
@@ -132,3 +142,25 @@ def poscarLoadingTools(path):
 	outLayerDict = {}
 	for poscar in poscarList:
 		yield poscar
+
+def hsekpoints(outdir, poscarsource, ibzkpt, symlsource = None):
+	import os
+	copyorlinkfile(outdir, "POSCAR", poscarsource, "cp")
+	from pylada.misc import Changedir
+	with Changedir(outdir) as pwd:
+		if symlsource == None:
+			symlsource = "syml_" + getSpaceGroupName() + "_hse"
+			symlsource = os.path.join(os.environ["SYML"],symlsource)
+			copyorlinkfile("./","syml",symlsource,"ln -s")
+		with open(ibzkpt,"r") as rfile:
+			kpoints = rfile.readlines()
+		os.system("adogk")
+		zkpoints = []
+		for i in os.popen("cat inp.kpt | awk '{print $1,$2,$3,0.00000}'"):
+			zkpoints.append(i)
+		kpoints[1] = str(len(kpoints - 3) + len(zkpoints)) + "\n"
+		kpoints.extend(zkpoints)
+		with open("KPOINTS","w") as wfile:
+			wfile.write(kpoints)
+		kpoints = os.path.abspath("KPOINTS")
+	return kpoints

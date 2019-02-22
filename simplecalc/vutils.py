@@ -2,6 +2,13 @@ from simplecalc import tools
 from simplecalc import config
 
 def relaxCalc(root, poscar, common = config.COMMON["nodeParams"], scan = False, optcell = (1,1,1)):
+	"""
+	@param root: pylada.jobfolder.Jobfolder a root job for vasp file
+	@param poscar: standard vasp5 poscar file path with special name,like "POSCAR-Mo2Se"
+	@param commom: common set for pylada.vasp compute
+	@param scan: whether use INCAR_RELAX_SCAN as INCAR
+	@param optcell: optcell for relax
+	"""
 	import re
 	from simplecalc import tools
 	job = root / poscar / "relax"
@@ -19,16 +26,23 @@ def relaxCalc(root, poscar, common = config.COMMON["nodeParams"], scan = False, 
 	job.params["poscar"] = root.name[1:] + "/poscar_all/" + poscar
 	job.params["potcar"] = re.findall("[a-zA-Z_]+",poscar.split("-")[1])
 	job.functional = tools.looptorelax
-	job.compute(outdir = job.name[1:], maxLoop = job.params["maxLoop"],)
+	job.compute(outdir = job.name[1:], maxLoop = job.params["maxLoop"])
 
 	
 
-def scfCalc(root, poscar,inherit = True, common = config.COMMON["nodeParams"]):
+def scfCalc(root, poscar,inherit = True, common = config.COMMON["nodeParams"], **kwargs):
+	"""
+	@param root: pylada.jobfolder.Jobfolder a root job for vasp file
+	@param poscar: standard vasp5 poscar file path with special name,like "POSCAR-Mo2Se"
+	@param commom: common set for pylada.vasp compute
+	@param inhert: whether loading relax contcar from poscar/relax
+	@param kwargs: other parameter of relaxCalc
+	"""
 	import os
 	import re
 	job = root / poscar / "scf"
 	if inherit:
-		relaxCalc(root, poscar, common = common)
+		relaxCalc(root, poscar, common = common, **kwargs)
 		job.params["poscar"] = os.path.join(job.parent.name[1:],"relax","CONTCAR")
 		job.params["kpoints"] = os.path.join(job.parent.name[1:],"relax","KPOINTS")
 	else:
@@ -41,12 +55,19 @@ def scfCalc(root, poscar,inherit = True, common = config.COMMON["nodeParams"]):
 	job.compute(outdir = job.name[1:])
 
 
-def bandCalc(root, poscar, inherit = True, common = config.COMMON["nodeParams"]):
+def bandCalc(root, poscar, inherit = True, common = config.COMMON["nodeParams"], **kwargs):
+	"""
+	@param root: pylada.jobfolder.Jobfolder a root job for vasp file
+	@param poscar: standard vasp5 poscar file path with special name,like "POSCAR-Mo2Se"
+	@param commom: common set for pylada.vasp compute
+	@param inhert: whether loading relax contcar from poscar/relax
+	@param kwargs: other parameter of scfCalc
+	"""
 	import os
 	import re
 	job = root / poscar / "band"
 	if inherit:
-		scfCalc(root, poscar, common = common)
+		scfCalc(root, poscar, common = common, **kwargs)
 		job.params["poscar"] = os.path.join(job.parent.name[1:],"relax","CONTCAR")
 		job.params["chgcar"] = os.path.join(job.parent.name[1:],"scf","CHGCAR")
 		job.params["wavecar"] = os.path.join(job.parent.name[1:],"scf","WAVECAR")
@@ -102,4 +123,23 @@ def strainCalc(job, poscar, potcar, optcell, scale, direct, kpointsCell, common 
 	job.functional = tools.looptorelax
 	job.compute(outdir = job.name[1:], maxLoop = job.params["maxLoop"])
 
-
+def hsebandCalc(job, poscar, inhert = True, common = config.COMMON["nodeParams"], **kwargs):
+	import os
+	import re
+	job = root / poscar / "hseband"
+	if inherit:
+		scfCalc(root, poscar, common = common, **kwargs)
+		job.params["poscar"] = os.path.join(job.parent.name[1:],"scf","CONTCAR")
+	else:
+		job.params["poscar"] = root.name[1:] + "/poscar_all/" + poscar
+	job.params["wavecar"] = os.path.join(job.parent.name[1:],"scf","WAVECAR")
+	job.params["chgcar"] = os.path.join(job.parent.name[1:],"scf","CHGCAR")
+	ibzkpt = os.path.join(job.parent.name[1:],"scf","IBZKPT")
+	job.params["kpoints"] = tools.hsekpoints(job.name[1:],job.params["poscar"],ibzkpt)
+	job.params["writewave"] = False
+	job.params["writechg"] = False
+	job.params["common"] = common
+	job.params["incar"] = root.name[1:] + "/incar/INCAR_HSE_BAND"
+	job.params["potcar"] = re.findall("[a-zA-Z_]+",poscar.split("-")[1])
+	job.functional = tools.compute
+	job.compute(outdir = job.name[1:])

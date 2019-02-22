@@ -9,8 +9,6 @@ def createBAND(fermi = None,savepath = "./bnd.dat"):
 			file.write(mystr)
 
 
-
-
 def getBandData(path = "EIGENVAL"):
 	line = ""
 	with open(path,"r") as file:
