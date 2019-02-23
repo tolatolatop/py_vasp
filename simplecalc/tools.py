@@ -158,7 +158,7 @@ def hsekpoints(outdir, poscarsource, ibzkpt, symlsource = None):
 		zkpoints = []
 		for i in os.popen("cat inp.kpt | awk '{print $1,$2,$3,0.00000}'"):
 			zkpoints.append(i)
-		kpoints[1] = str(len(kpoints - 3) + len(zkpoints)) + "\n"
+		kpoints[1] = str(len(kpoints) + len(zkpoints) - 3) + "\n"
 		kpoints.extend(zkpoints)
 		with open("KPOINTS","w") as wfile:
 			wfile.write(kpoints)
