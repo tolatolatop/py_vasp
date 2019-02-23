@@ -181,7 +181,7 @@ def hsekpoints(outdir, poscarsource, ibzkpt, symlsource = None):
 		kpoints[1] = str(len(kpoints) + len(zkpoints) - 3) + "\n"
 		kpoints.extend(zkpoints)
 		with open("KPOINTS","w") as wfile:
-			wfile.write(kpoints)
+			wfile.writelines(kpoints)
 		kpoints = os.path.abspath("KPOINTS")
 	return kpoints
 
