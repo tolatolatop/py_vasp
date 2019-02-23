@@ -140,6 +140,7 @@ def hsebandCalc(root, poscar, inherit = True, common = config.COMMON["nodeParams
 	job.params["writechg"] = False
 	job.params["common"] = common
 	job.params["incar"] = root.name[1:] + "/incar/INCAR_HSE_BAND"
-	job.params["potcar"] = re.findall("[a-zA-Z_]+",poscar.split("-")[1])
-	job.functional = tools.compute
+	job.params["potcar"] = os.path.join(job.parent.name[1:],"scf","POTCAR")
+	#job.functional = tools.compute
+	job.functional = tools.stupidcompute
 	job.compute(outdir = job.name[1:])

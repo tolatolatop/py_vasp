@@ -55,6 +55,26 @@ def compute(outdir, common ,**kwargs):
 		raise e
 	return result
 
+def stupidcompute(outdir, common, **kwargs):
+	import os
+	copyorlinkfile(outdir,"POSCAR",kwargs["poscar"],"cp")
+	copyorlinkfile(outdir,"INCAR",kwargs["incar"],"cp")
+	copyorlinkfile(outdir,"POTCAR",kwargs["potcar"],"ln -s")
+	copyorlinkfile(outdir,"CHGCAR",kwargs["chgcar"],"ln -s")
+	copyorlinkfile(outdir,"WAVECAR",kwargs["wavecar"],"ln -s")
+	copyorlinkfile(outdir,"KPOINTS",kwargs["kpoints"],"cp")
+	try:
+		with Changedir(outdir) as pwd:
+			tmp = []
+			for i in os.popen(pylada.vasp_program):
+				tmp.append(i)
+			with open("stdout","w") as wfile:
+				wfile.writelines(i)
+	except Exception as e:
+		print("path:" + outdir)
+		raise e
+	return result
+
 def writeoptcell(outdir, optcell):
 	import os
 	if not os.path.exists(outdir):
