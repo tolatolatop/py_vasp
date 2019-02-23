@@ -43,8 +43,8 @@ def compute(outdir, common ,**kwargs):
 		tmp[tmp == 0] = 1
 		vasp.kpoints = kpoint % (tuple(tmp))
 	else:
-		if "kspacing" in kwargs.keys():
-			pass
+		if hasattr(vasp,"kspacing"):
+			vasp.write_kpoints = nowritekpoints
 		else:
 			with open(kwargs["kpoints"],"r") as rfile:
 				vasp.kpoints = rfile.read()
@@ -146,14 +146,14 @@ def poscarLoadingTools(path):
 def hsekpoints(outdir, poscarsource, ibzkpt, symlsource = None):
 	import os
 	copyorlinkfile(outdir, "POSCAR", poscarsource, "cp")
+	with open(ibzkpt,"r") as rfile:
+		kpoints = rfile.readlines()
 	from pylada.misc import Changedir
 	with Changedir(outdir) as pwd:
 		if symlsource == None:
 			symlsource = "syml_" + getSpaceGroupName() + "_hse"
 			symlsource = os.path.join(os.environ["SYML"],symlsource)
 			copyorlinkfile("./","syml",symlsource,"ln -s")
-		with open(ibzkpt,"r") as rfile:
-			kpoints = rfile.readlines()
 		os.system("adogk")
 		zkpoints = []
 		for i in os.popen("cat inp.kpt | awk '{print $1,$2,$3,0.00000}'"):
@@ -164,3 +164,6 @@ def hsekpoints(outdir, poscarsource, ibzkpt, symlsource = None):
 			wfile.write(kpoints)
 		kpoints = os.path.abspath("KPOINTS")
 	return kpoints
+
+def nowritekpoints(self, file, structure, kpoints=None):
+	pass

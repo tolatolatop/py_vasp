@@ -35,7 +35,7 @@ def scfCalc(root, poscar,inherit = True, common = config.COMMON["nodeParams"], *
 	@param root: pylada.jobfolder.Jobfolder a root job for vasp file
 	@param poscar: standard vasp5 poscar file path with special name,like "POSCAR-Mo2Se"
 	@param commom: common set for pylada.vasp compute
-	@param inhert: whether loading relax contcar from poscar/relax
+	@param inherit: whether loading relax contcar from poscar/relax
 	@param kwargs: other parameter of relaxCalc
 	"""
 	import os
@@ -60,7 +60,7 @@ def bandCalc(root, poscar, inherit = True, common = config.COMMON["nodeParams"],
 	@param root: pylada.jobfolder.Jobfolder a root job for vasp file
 	@param poscar: standard vasp5 poscar file path with special name,like "POSCAR-Mo2Se"
 	@param commom: common set for pylada.vasp compute
-	@param inhert: whether loading relax contcar from poscar/relax
+	@param inherit: whether loading relax contcar from poscar/relax
 	@param kwargs: other parameter of scfCalc
 	"""
 	import os
@@ -123,7 +123,7 @@ def strainCalc(job, poscar, potcar, optcell, scale, direct, kpointsCell, common 
 	job.functional = tools.looptorelax
 	job.compute(outdir = job.name[1:], maxLoop = job.params["maxLoop"])
 
-def hsebandCalc(job, poscar, inhert = True, common = config.COMMON["nodeParams"], **kwargs):
+def hsebandCalc(root, poscar, inherit = True, common = config.COMMON["nodeParams"], **kwargs):
 	import os
 	import re
 	job = root / poscar / "hseband"

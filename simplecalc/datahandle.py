@@ -8,7 +8,7 @@ def bandDrawing(vasppath):
 	kpath = [i.splite("-") for i in kpath]
 	for line in kpath:
 		for keypoints in line:
-
+			pass
 
 def dosDrawing(vasppath):
 	pass
