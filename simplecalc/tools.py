@@ -57,12 +57,14 @@ def compute(outdir, common ,**kwargs):
 
 def stupidcompute(outdir, common, **kwargs):
 	import os
+	import pylada
+	from pylada.misc import Changedir
 	copyorlinkfile(outdir,"POSCAR",kwargs["poscar"],"cp")
 	copyorlinkfile(outdir,"INCAR",kwargs["incar"],"cp")
-	copyorlinkfile(outdir,"POTCAR",kwargs["potcar"],"ln -s")
-	copyorlinkfile(outdir,"CHGCAR",kwargs["chgcar"],"ln -s")
-	copyorlinkfile(outdir,"WAVECAR",kwargs["wavecar"],"ln -s")
-	copyorlinkfile(outdir,"KPOINTS",kwargs["kpoints"],"cp")
+	copyorlinkfile(outdir,"POTCAR",kwargs["potcar"],"cp")
+	copyorlinkfile(outdir,"CHGCAR",kwargs["chgcar"],"cp")
+	copyorlinkfile(outdir,"WAVECAR",kwargs["wavecar"],"cp")
+	#copyorlinkfile(outdir,"KPOINTS",kwargs["kpoints"],"cp")
 	try:
 		with Changedir(outdir) as pwd:
 			tmp = []
@@ -187,3 +189,39 @@ def hsekpoints(outdir, poscarsource, ibzkpt, symlsource = None):
 
 def nowritekpoints(self, file, structure, kpoints=None):
 	pass
+
+
+def get_number(tstr ,number = 1,dtype = "float"):
+	"""
+	a simple function to get number
+	"""
+	if dtype == "float":
+		re_test = re.compile("[0-9.\+\-E]+")
+		convert = float
+	elif dtype == "int":
+		re_test = re.compile("[0-9]+")
+		convert = int
+	r = re_test.findall(tstr)[0:number]
+	if number == None:
+		number = len(r)
+	if len(r) != number:
+		raise ValueError("Error in %s" % (tstr))
+	else:
+		result = [convert(i) for i in r]
+	return result
+
+def getEIGENVAL(path = "EIGENVAL"):
+	line = ""
+	with open(path,"r") as file:
+		[file.readline() for i in range(5)] # Discard the first 5 lines
+		line = file.readline()
+		meta = get_number(line,3,dtype="int")
+		data ,title = list() , list()
+		for i in range(meta[1]):
+			file.readline()
+			title.append(get_number(file.readline(),4,dtype="float"))
+			for j in range(meta[2]):
+				data.append(get_number(file.readline(),None,dtype="float"))
+	return meta,title,data
+
+def writeEIGENVAL_HSE(vasppath):
