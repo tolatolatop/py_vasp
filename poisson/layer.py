@@ -137,7 +137,7 @@ def maxcellKpoints(name, maxcell):
 	return new
 
 @tools.interface
-def compute(common, maxLoop = 10):
+def compute(common, maxLoop = 0):
 	"""
 		return a function to set a compute mission in job
 		note that please make sure you really know how it works
@@ -196,7 +196,7 @@ def setoptcell(optcell):
 	return new
 
 @tools.interface
-def setSpecie(specie):
+def setspecie(specie):
 	"""
 		return a function to set atom type
 		@param inputlayer : a function created by front layer
@@ -246,15 +246,14 @@ def doublekpoints(times = 2):
 
 
 @tools.interface
-def copyorlinkfile(dirpath,filename,cmd = "ln -s"):
+def copyorlinkfile(dirpath,filename,cmd = "cp"):
 	import os
 	path = os.path.join(dirpath,filename)
 	@tools.layer
 	def new(job):
 		@tools.cellcall(job.params["call"])
 		def func(job):
-			with Changedir(job.name[1:]) as pwd:
-				abspath = os.path.abspath(path)
+			abspath = os.path.abspath(os.path.join(job.name[1:],path))
 			if not os.path.exists(abspath):
 				raise IOError("Can't found " + abspath)
 			res =  os.system("%s %s %s" % (cmd,abspath,os.path.join(job.name[1:],filename)))
@@ -272,9 +271,7 @@ def loadkpoints(filename):
 		@tools.cellcall(job.params["call"])
 		def func(job):
 			vasp = deepcopy(job.params["vasp"])
-
-			with Changedir(job.name[1:]) as pwd:
-				abspath = os.path.abspath(filename)
+			abspath = os.path.abspath(filename)
 			if not os.path.exists(abspath):
 				raise IOError("Can't found " + abspath)
 			with open(abspath,"r") as rfile:
@@ -293,8 +290,7 @@ def loadstructure(filename):
 	def new(job):
 		@tools.cellcall(job.params["call"])
 		def func(job):
-			with Changedir(job.name[1:]) as pwd:
-				abspath = os.path.abspath(filename)
+			abspath = os.path.abspath(filename)
 			if not os.path.exists(abspath):
 				raise IOError("Can't found " + abspath)
 			structure = read.poscar(abspath)
@@ -303,11 +299,22 @@ def loadstructure(filename):
 		yield job
 	return new
 
-def linkchgcarfrom(inputlayer,dirname):
-	return copyorlinkfile(inputlayer,dirpath = dirname,filename = "CHGCAR", cmd = "ln -s")
+@tools.interface
+def aflowkpoints(poscarname = "POSCAR"):
+	@tools.layer
+	def new(job):
+		@tools.cellcall(job.params["call"])
+		def func(job):
+			import os
+			tools.getSpaceGroupName(poscarname)
+			syml_path = os.path.join(os.environ["SYML"] ,"syml_"+ spacegroupname +"_original")
+			print("syml_" + spacegroupname + "_original")
+			#shutill.copy(syml_path, job.name[1:] + "/syml")
+			os.system("ln -s %s %s;adogk" % (cmd,syml_path,"syml"))
+		job.params["call"] = func
+		yield job
+	return new
 
-def linkwavecarfrom(inputlayer,dirname):
-	return copyorlinkfile(inputlayer,dirpath = dirname,filename = "WAVECAR", cmd = "ln -s")
 
 def copychgcarfrom(inputlayer,dirname):
 	return copyorlinkfile(inputlayer,dirpath = dirname,filename = "CHGCAR", cmd = "cp")
