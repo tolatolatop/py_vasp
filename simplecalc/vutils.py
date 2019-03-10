@@ -153,7 +153,6 @@ def optiCalc(root, poscar, inherit = True, common = config.COMMON["nodeParams"])
 	import re
 	job = root / poscar / "optic"
 	job.params["poscar"] = os.path.join(job.parent.name[1:],"relax","CONTCAR")
-	job.parent["kpoints"] = root.name[1:] + "/kpoints/KPOINTS_ABS"
 	if inherit:
 		job.params["poscar"] = os.path.join(job.parent.name[1:],"relax","CONTCAR")
 	else:
