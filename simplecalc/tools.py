@@ -224,4 +224,3 @@ def getEIGENVAL(path = "EIGENVAL"):
 				data.append(get_number(file.readline(),None,dtype="float"))
 	return meta,title,data
 
-def writeEIGENVAL_HSE(vasppath):

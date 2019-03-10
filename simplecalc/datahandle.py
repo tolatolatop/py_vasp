@@ -55,7 +55,7 @@ def writeEIGENVAL_HSE(vasppath):
 cat EIGENVAL > EIGENVAL_BAK
 Q="(NR<6){print}"
 cat EIGENVAL | awk '(NR<6){print $0}' > EIGENVAL_B
-KN=`cat inp.kp | awk 'END{print NR}' | tail -1`
+KN=`cat inp.kpt | awk 'END{print NR}' | tail -1`
 KNF=`cat EIGENVAL | awk '(NR==6){print $2}'`
 BN=`cat EIGENVAL | awk '(NR==6){print $3}'`
 tmp=`cat EIGENVAL | awk '(NR==6){print $1}'`

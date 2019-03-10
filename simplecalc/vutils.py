@@ -44,7 +44,10 @@ def scfCalc(root, poscar,inherit = True, common = config.COMMON["nodeParams"], *
 	if inherit:
 		relaxCalc(root, poscar, common = common, **kwargs)
 		job.params["poscar"] = os.path.join(job.parent.name[1:],"relax","CONTCAR")
-		job.params["kpoints"] = os.path.join(job.parent.name[1:],"relax","KPOINTS")
+		if os.path.exists(root.name[1:] + "/kpoints/KPOINTS_SCF"):
+			job.params["kpoints"] = root.name[1:] + "/kpoints/KPOINTS_SCF"
+		else:
+			job.params["kpoints"] = os.path.join(job.parent.name[1:],"relax","KPOINTS")
 	else:
 		job.params["poscar"] = root.name[1:] + "/poscar_all/" + poscar
 		job.params["kpoints"] = root.name[1:] + "/kpoints/KPOINTS_SCF"
@@ -143,4 +146,25 @@ def hsebandCalc(root, poscar, inherit = True, common = config.COMMON["nodeParams
 	job.params["potcar"] = os.path.join(job.parent.name[1:],"scf","POTCAR")
 	#job.functional = tools.compute
 	job.functional = tools.stupidcompute
+	job.compute(outdir = job.name[1:])
+
+def optiCalc(root, poscar, inherit = True, common = config.COMMON["nodeParams"]):
+	import os
+	import re
+	job = root / poscar / "optic"
+	job.params["poscar"] = os.path.join(job.parent.name[1:],"relax","CONTCAR")
+	job.parent["kpoints"] = root.name[1:] + "/kpoints/KPOINTS_ABS"
+	if inherit:
+		job.params["poscar"] = os.path.join(job.parent.name[1:],"relax","CONTCAR")
+	else:
+		job.params["poscar"] = root.name[1:] + "/poscar_all/" + poscar
+	job.params["kpoints"] = root.name[1:] + "/kpoints/KPOINTS_ABS"
+	job.params["writechg"] = False
+	job.params["writewave"] = False
+	job.params["common"] = common
+	job.params["incar"] = root.name[1:] + "/incar/INCAR_ABS"
+	job.params["wavecar"] = os.path.join(job.parent.name[1:],"scf","WAVECAR")
+	job.params["chgcar"] = os.path.join(job.parent.name[1:],"scf","CHGCAR")
+	job.params["potcar"] = re.findall("[a-zA-Z_]+",poscar.split("-")[1])
+	job.functional = tools.compute
 	job.compute(outdir = job.name[1:])
