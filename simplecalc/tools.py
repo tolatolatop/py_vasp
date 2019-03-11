@@ -26,7 +26,8 @@ def compute(outdir, common ,**kwargs):
 	else:
 		vasp.lwave = True
 	if "optcell" in kwargs.keys():
-		writeoptcell(outdir, kwargs["optcell"])
+		if kwargs["optcell"] is not None:
+			writeoptcell(outdir, kwargs["optcell"])
 	if "chgcar" in kwargs.keys():
 		copyorlinkfile(outdir, "CHGCAR", kwargs["chgcar"], "cp")
 	if "wavecar" in kwargs.keys():

@@ -1,7 +1,6 @@
 import re
 
-
-if __name__ == "__main__":
+def writechgcarnpy():
 	with open("CHGCAR","r") as rfile:
 		chgcar = rfile.readlines()
 	notnull = re.compile(r"[\S]")
@@ -17,7 +16,6 @@ if __name__ == "__main__":
 	metalength = None
 	for i in chgcar[head+1:]:
 		if g == datasize[0] * datasize[1] * datasize[2]:
-			print(i)
 			break
 		tmpdata = [float(j) for j in getnumber.findall(i)]
 		if metalength is None:
@@ -27,3 +25,7 @@ if __name__ == "__main__":
 	data = np.array(data)
 	data.reshape(datasize)
 	np.save("chgcardata",data)
+
+
+if __name__ == "__main__":
+	writechgcarnpy()

@@ -1,7 +1,7 @@
 from simplecalc import tools
 from simplecalc import config
 
-def relaxCalc(root, poscar, common = config.COMMON["nodeParams"], scan = False, optcell = (1,1,1)):
+def relaxCalc(root, poscar, common = config.COMMON["nodeParams"], scan = False, optcell = None):
 	"""
 	@param root: pylada.jobfolder.Jobfolder a root job for vasp file
 	@param poscar: standard vasp5 poscar file path with special name,like "POSCAR-Mo2Se"
