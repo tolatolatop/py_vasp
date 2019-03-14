@@ -25,6 +25,10 @@ def compute(outdir, common ,**kwargs):
 		vasp.lwave = kwargs["writewave"]
 	else:
 		vasp.lwave = True
+	if "writeoptics" in kwargs.keys():
+		vasp.loptics = kwargs["writeoptics"]
+	else:
+		vasp.loptics = False
 	if "optcell" in kwargs.keys():
 		if kwargs["optcell"] is not None:
 			writeoptcell(outdir, kwargs["optcell"])

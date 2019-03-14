@@ -160,6 +160,7 @@ def optiCalc(root, poscar, inherit = True, common = config.COMMON["nodeParams"])
 	job.params["kpoints"] = root.name[1:] + "/kpoints/KPOINTS_ABS"
 	job.params["writechg"] = False
 	job.params["writewave"] = False
+	job.params["writeoptics"] = True
 	job.params["common"] = common
 	job.params["incar"] = root.name[1:] + "/incar/INCAR_ABS"
 	job.params["wavecar"] = os.path.join(job.parent.name[1:],"scf","WAVECAR")
