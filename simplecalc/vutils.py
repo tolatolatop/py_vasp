@@ -22,7 +22,7 @@ def relaxCalc(root, poscar, common = config.COMMON["nodeParams"], scan = False, 
 	job.params["writechg"] = False
 	job.params["writechg"] = False
 	job.params["maxLoop"] = 10
-	job.params["kpoints"] = root.name[1:] + "/kpoints/KPOINTS_RELAX"
+	job.params["kpoints"] = tools.vaspkitkpoints(,job.params["poscar"])
 	job.params["poscar"] = root.name[1:] + "/poscar_all/" + poscar
 	job.params["potcar"] = re.findall("[a-zA-Z_]+",poscar.split("-")[1])
 	job.functional = tools.looptorelax
@@ -30,7 +30,7 @@ def relaxCalc(root, poscar, common = config.COMMON["nodeParams"], scan = False, 
 
 	
 
-def scfCalc(root, poscar,inherit = True, common = config.COMMON["nodeParams"], **kwargs):
+def scfCalc(root, poscar,inherit = True, common = config.COMMON["nodeParams"],**kwargs):
 	"""
 	@param root: pylada.jobfolder.Jobfolder a root job for vasp file
 	@param poscar: standard vasp5 poscar file path with special name,like "POSCAR-Mo2Se"
@@ -57,6 +57,58 @@ def scfCalc(root, poscar,inherit = True, common = config.COMMON["nodeParams"], *
 	job.functional = tools.compute
 	job.compute(outdir = job.name[1:])
 
+def socscfCalc(root, poscar, inherit = True, common = config.COMMON["nodeParams"], **kwargs):
+	"""
+	@param root: pylada.jobfolder.Jobfolder a root job for vasp file
+	@param poscar: standard vasp5 poscar file path with special name,like "POSCAR-Mo2Se"
+	@param commom: common set for pylada.vasp compute
+	@param inherit: whether loading relax contcar from poscar/relax
+	@param kwargs: other parameter of relaxCalc
+	"""
+	import os
+	import re
+	job = root / poscar / "socscf"
+	if inherit:
+		relaxCalc(root, poscar, common = common, **kwargs)
+		job.params["poscar"] = os.path.join(job.parent.name[1:],"relax","CONTCAR")
+		if os.path.exists(root.name[1:] + "/kpoints/KPOINTS_SCF"):
+			job.params["kpoints"] = root.name[1:] + "/kpoints/KPOINTS_SCF"
+		else:
+			job.params["kpoints"] = os.path.join(job.parent.name[1:],"relax","KPOINTS")
+	else:
+		job.params["poscar"] = root.name[1:] + "/poscar_all/" + poscar
+		job.params["kpoints"] = root.name[1:] + "/kpoints/KPOINTS_SCF"
+	job.params["common"] = common
+	job.params["magmom"] = tools.magmom(job.params["poscar"])
+	job.params["incar"] = root.name[1:] + "/incar/INCAR_SOC_SCF"
+	job.params["potcar"] = re.findall("[a-zA-Z_]+",poscar.split("-")[1])
+	job.functional = tools.compute
+	job.compute(outdir = job.name[1:])
+
+def socbandCalc(root, poscar, inherit = True, common = config.COMMON["nodeParams"], **kwargs):
+	"""
+	@param root: pylada.jobfolder.Jobfolder a root job for vasp file
+	@param poscar: standard vasp5 poscar file path with special name,like "POSCAR-Mo2Se"
+	@param commom: common set for pylada.vasp compute
+	@param inherit: whether loading relax contcar from poscar/relax
+	@param kwargs: other parameter of scfCalc
+	"""
+	import os
+	import re
+	job = root / poscar / "socband"
+	socscfCalc(root, poscar, common = common, **kwargs)
+	job.params["poscar"] = os.path.join(job.parent.name[1:],"socscf","CONTCAR")
+	job.params["chgcar"] = os.path.join(job.parent.name[1:],"socscf","CHGCAR")
+	job.params["wavecar"] = os.path.join(job.parent.name[1:],"socscf","WAVECAR")
+	job.params["magmom"] = tools.magmom(job.params["poscar"])
+	job.params["writewave"] = False
+	job.params["writechg"] = False
+	job.params["common"] = common
+	job.params["kpoints"] = tools.aflowkpoints(job.name[1:],job.params["poscar"])
+	job.params["incar"] = root.name[1:] + "INCAR_SOC_BAND" 
+	job.params["potcar"] = re.findall("[a-zA-Z_]+",poscar.split("-")[1])
+	job.functional = tools.compute
+	job.compute(outdir = job.name[1:])
 
 def bandCalc(root, poscar, inherit = True, common = config.COMMON["nodeParams"], **kwargs):
 	"""
@@ -69,13 +121,10 @@ def bandCalc(root, poscar, inherit = True, common = config.COMMON["nodeParams"],
 	import os
 	import re
 	job = root / poscar / "band"
-	if inherit:
-		scfCalc(root, poscar, common = common, **kwargs)
-		job.params["poscar"] = os.path.join(job.parent.name[1:],"relax","CONTCAR")
-		job.params["chgcar"] = os.path.join(job.parent.name[1:],"scf","CHGCAR")
-		job.params["wavecar"] = os.path.join(job.parent.name[1:],"scf","WAVECAR")
-	else:
-		job.params["poscar"] = root.name[1:] + "/poscar_all/" + poscar
+	scfCalc(root, poscar, common = common, **kwargs)
+	job.params["poscar"] = os.path.join(job.parent.name[1:],"scf","CONTCAR")
+	job.params["chgcar"] = os.path.join(job.parent.name[1:],"scf","CHGCAR")
+	job.params["wavecar"] = os.path.join(job.parent.name[1:],"scf","WAVECAR")
 	job.params["writewave"] = False
 	job.params["writechg"] = False
 	job.params["common"] = common
@@ -85,19 +134,15 @@ def bandCalc(root, poscar, inherit = True, common = config.COMMON["nodeParams"],
 	job.functional = tools.compute
 	job.compute(outdir = job.name[1:])
 
-def dosCalc(root, poscar, inherit = True, common = config.COMMON["nodeParams"]):
+def dosCalc(root, poscar, inherit = True, common = config.COMMON["nodeParams"], **kwargs):
 	import os
 	import re
 	job = root / poscar / "dos"
-	if inherit:
-		scfCalc(root, poscar, common = common)
-		job.params["poscar"] = os.path.join(job.parent.name[1:],"relax","CONTCAR")
-		job.params["chgcar"] = os.path.join(job.parent.name[1:],"scf","CHGCAR")
-		job.params["wavecar"] = os.path.join(job.parent.name[1:],"scf","WAVECAR")
-		job.params["kpoints"] = os.path.join(job.parent.name[1:],"relax","KPOINTS")
-	else:
-		job.params["poscar"] = root.name[1:] + "/poscar_all/" + poscar
-		job.params["kpoints"] = root.name[1:] + "/kpoints/KPOINTS_DOS"
+	scfCalc(root, poscar, common = common, **kwargs)
+	job.params["poscar"] = os.path.join(job.parent.name[1:],"scf","CONTCAR")
+	job.params["chgcar"] = os.path.join(job.parent.name[1:],"scf","CHGCAR")
+	job.params["wavecar"] = os.path.join(job.parent.name[1:],"scf","WAVECAR")
+	job.params["kpoints"] = os.path.join(job.parent.name[1:],"scf","KPOINTS")
 	job.params["writewave"] = False
 	job.params["writechg"] = False
 	job.params["common"] = common
@@ -130,11 +175,8 @@ def hsebandCalc(root, poscar, inherit = True, common = config.COMMON["nodeParams
 	import os
 	import re
 	job = root / poscar / "hseband"
-	if inherit:
-		scfCalc(root, poscar, common = common, **kwargs)
-		job.params["poscar"] = os.path.join(job.parent.name[1:],"scf","CONTCAR")
-	else:
-		job.params["poscar"] = root.name[1:] + "/poscar_all/" + poscar
+	scfCalc(root, poscar, common = common, **kwargs)
+	job.params["poscar"] = os.path.join(job.parent.name[1:],"scf","CONTCAR")
 	job.params["wavecar"] = os.path.join(job.parent.name[1:],"scf","WAVECAR")
 	job.params["chgcar"] = os.path.join(job.parent.name[1:],"scf","CHGCAR")
 	ibzkpt = os.path.join(job.parent.name[1:],"scf","IBZKPT")
@@ -166,5 +208,6 @@ def optiCalc(root, poscar, inherit = True, common = config.COMMON["nodeParams"])
 	job.params["wavecar"] = os.path.join(job.parent.name[1:],"scf","WAVECAR")
 	job.params["chgcar"] = os.path.join(job.parent.name[1:],"scf","CHGCAR")
 	job.params["potcar"] = re.findall("[a-zA-Z_]+",poscar.split("-")[1])
+	#job.params["magmom"] = magmom(poscar)
 	job.functional = tools.compute
 	job.compute(outdir = job.name[1:])

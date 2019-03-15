@@ -1,3 +1,10 @@
+def gettmpdir():
+	import os
+	import uuid
+	outdir = os.path.join("/tmp",uuid.uuid4().hex)
+	os.makedirs(outdir)
+	return outdir
+
 def looptorelax(outdir, maxLoop, **kwargs):
 	for i in range(maxLoop):
 		result = compute(outdir + "relax_%d" % i, **kwargs)
@@ -91,6 +98,7 @@ def writeoptcell(outdir, optcell):
 
 def aflowkpoints(outdir, poscarsource):
 	import os
+	outdir = gettmpdir()
 	copyorlinkfile(outdir, "POSCAR", poscarsource, "cp")
 	from pylada.misc import Changedir
 	with Changedir(outdir) as pwd:
@@ -130,14 +138,12 @@ def getSpaceGroupName():
 	return spacegroupname
 
 def strainstructure(orgposcar, strain , direct):
-	import uuid
 	import os
 	import numpy as np
 	from pylada.crystal import write,read
-	root = "/tmp"
-	uuid_str = uuid.uuid4().hex
-	tmp_file_name = 'tmpfile_%s.txt' % uuid_str
-	tmp_path = os.path.join(root,tmp_file_name)
+	outdir = gettmpdir()
+	tmp_file_name = "POSCAR"
+	tmp_path = os.path.join(outdir,tmp_file_name)
 	structure = read.poscar(orgposcar)
 	a = np.array([1.0,1.0,1.0])
 	if direct == "a":
@@ -170,11 +176,30 @@ def poscarLoadingTools(path):
 	for poscar in poscarList:
 		yield poscar
 
-def hsekpoints(outdir, poscarsource, ibzkpt, symlsource = None):
+def vaspkitkpoints(poscarsource, kpointtype = 2, kspacing = 0.03):
 	import os
+	outdir = gettmpdir()
+	copyorlinkfile(outdir, "POSCAR", poscarsource, "cp")
+	from pylada.misc import Changedir
+	with Changedir(outdir) as pwd:
+		os.system("""vaspkit <<EOF
+7
+%d
+%.2f
+EOF
+""" % (kpointtype,kspacing))
+		kpoints = os.path.abspath("KPOINTS")
+	return kpoints
+
+
+def hsekpoints(poscarsource, ibzkpt, symlsource = None):
+	import os
+	outdir = gettmpdir()
 	copyorlinkfile(outdir, "POSCAR", poscarsource, "cp")
 	with open(ibzkpt,"r") as rfile:
 		kpoints = rfile.readlines()
+	line = int(kpoints[1].strip())
+	kpoints = kpoints[:3+line]
 	from pylada.misc import Changedir
 	with Changedir(outdir) as pwd:
 		if symlsource == None:
@@ -229,3 +254,8 @@ def getEIGENVAL(path = "EIGENVAL"):
 				data.append(get_number(file.readline(),None,dtype="float"))
 	return meta,title,data
 
+def magmom(poscarsource):
+	from pylada.crystal import read
+	structure = read.poscar(poscarsource)
+	magmom = "%d*0.6" % (len(structure) * 3)
+	return magmom
