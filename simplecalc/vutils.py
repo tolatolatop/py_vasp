@@ -71,13 +71,9 @@ def socscfCalc(root, poscar, inherit = True, common = config.COMMON["nodeParams"
 	if inherit:
 		relaxCalc(root, poscar, common = common, **kwargs)
 		job.params["poscar"] = os.path.join(job.parent.name[1:],"relax","CONTCAR")
-		if os.path.exists(root.name[1:] + "/kpoints/KPOINTS_SCF"):
-			job.params["kpoints"] = root.name[1:] + "/kpoints/KPOINTS_SCF"
-		else:
-			job.params["kpoints"] = os.path.join(job.parent.name[1:],"relax","KPOINTS")
 	else:
 		job.params["poscar"] = root.name[1:] + "/poscar_all/" + poscar
-		job.params["kpoints"] = root.name[1:] + "/kpoints/KPOINTS_SCF"
+	job.params["kpoints"] = tools.vaspkitkpoints(job.params["poscar"])
 	job.params["common"] = common
 	job.params["magmom"] = tools.magmom(job.params["poscar"])
 	job.params["incar"] = root.name[1:] + "/incar/INCAR_SOC_SCF"

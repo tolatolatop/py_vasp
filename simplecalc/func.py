@@ -1,6 +1,7 @@
 from simplecalc import vutils,tools
 from simplecalc import config
-def poissonCalc(root, orgposcar, kpointsCell, optcell, scales = [1.01, 0.09], inherit = True,
+def poissonCalc(root, orgposcar, optcell = None ,kpointsCell = [40,40,40],
+		scales = [1.01, 0.99], inherit = True,
 		direction = ['a','b'], vacuum = "c", common = config.COMMON["nodeParams"],
 		scan = False):
 	import os
