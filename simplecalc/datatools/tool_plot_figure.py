@@ -11,9 +11,9 @@ import matplotlib as mpl
 mpl.use("agg")
 import matplotlib.pyplot as plt
 import numpy as np
-import smalltool as st
+from . import smalltool as st
 import os
-import config_plot as cplot
+from . import config_plot as cplot
 #---------Finished defining variables----------
 
 #----------Define variables----------

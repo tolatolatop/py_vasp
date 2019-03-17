@@ -23,7 +23,7 @@ import os
 import numpy as np
 import shutil
 import xml.etree.ElementTree as ET
-import smalltool as st
+from . import smalltool as st
 #----------Finished importing packages----------
 
 

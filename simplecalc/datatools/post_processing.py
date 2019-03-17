@@ -6,13 +6,13 @@
 #----------Import packages----------
 import os
 import sys
-import read_xml as rx
-import tool_plot_figure as tpf
-import read_kpoints as rk
+from . import read_xml as rx
+from . import tool_plot_figure as tpf
+from . import read_kpoints as rk
 import matplotlib as mpl
 mpl.use("agg")
 import matplotlib.pyplot as plt
-import config_plot as cplot
+from . import config_plot as cplot
 #----------Finished importing packages----------
 
 #----------Define functions----------

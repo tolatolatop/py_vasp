@@ -17,7 +17,7 @@ Classes:
 """
 
 #----------Import packages----------
-import smalltool as st
+from . import smalltool as st
 import numpy as np
 import os
 #----------Finsihed importing packages----------
