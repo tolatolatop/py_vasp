@@ -1,5 +1,6 @@
 from simplecalc import vutils,func,tools
 from simplecalc.datahandle import poissonData
+from simplecalc.datatools import create_plot_band_structure
 from pylada.jobfolder import JobFolder
 import pylada
 pylada.vasp_program="vasp_std"
@@ -20,5 +21,10 @@ for poscar in tools.poscarLoadingTools("./database/poscar_all"):
 		result = poissonData(alist, alist[0], xaxis = "a-length", yaxis = "b-length")
 		print(result["xaxis"])
 		print(result["yaxis"])
+
+		job_band = root / poscar / "band"
+		list_file,list_figure = create_plot_band_structure(file_xml = os.path.join(job_band.name[1:],"vasprun.xml"), 
+								file_k = os.path.join(job_band.name[1:],"KPOINTS"))
+
 	except Exception as e:
 		print(e)

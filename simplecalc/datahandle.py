@@ -1,3 +1,4 @@
+from datatools import * 
 
 def bandDrawing(vasppath):
 	import os,re
