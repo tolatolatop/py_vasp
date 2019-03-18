@@ -1,4 +1,7 @@
 def gettmpdir():
+	"""
+	@return a tmpdir path
+	"""
 	import os
 	import uuid
 	outdir = os.path.join("/tmp",uuid.uuid4().hex)
@@ -6,6 +9,10 @@ def gettmpdir():
 	return outdir
 
 def looptorelax(outdir, maxLoop, **kwargs):
+	"""
+	relax to until one step stop.
+	@param maxLoop: to raise when arrive maxloop.  
+	"""
 	for i in range(maxLoop):
 		result = compute(outdir + "relax_%d" % i, **kwargs)
 		kwargs["poscar"] = outdir + "relax_%d/" % i + "CONTCAR"
@@ -19,10 +26,10 @@ def compute(outdir, common ,**kwargs):
 	from pylada.vasp import read_incar
 	from pylada.crystal import read
 	import os
-	structure = read.poscar(kwargs["poscar"])
-	vasp = read_incar(kwargs["incar"])
+	structure = read.poscar(kwargs["poscar"]) # get structure from poscar
+	vasp = read_incar(kwargs["incar"]) # get vasp from incar
 
-	for pot in kwargs["potcar"]:
+	for pot in kwargs["potcar"]: # set species
 		vasp.add_specie = pot.split("_")[0], os.path.join(os.environ["PAW"], pot)
 	if "writechg" in kwargs.keys():
 		vasp.lcharg = kwargs["writechg"]
@@ -43,7 +50,7 @@ def compute(outdir, common ,**kwargs):
 		copyorlinkfile(outdir, "CHGCAR", kwargs["chgcar"], "cp")
 	if "wavecar" in kwargs.keys():
 		copyorlinkfile(outdir, "WAVECAR", kwargs["wavecar"], "cp")
-	if "dfile" in kwargs.keys():
+	if "dfile" in kwargs.keys(): # write a describe file
 		if not os.path.exists(os.path.join(outdir,"DFILE")):
 			with open(os.path.join(outdir,"DFILE"),"w") as f:
 				f.write(kwargs["dfile"])
@@ -55,7 +62,7 @@ def compute(outdir, common ,**kwargs):
 		tmp[tmp == 0] = 1
 		vasp.kpoints = kpoint % (tuple(tmp))
 	else:
-		if hasattr(vasp,"kspacing"):
+		if hasattr(vasp,"kspacing"): # can't work
 			vasp.write_kpoints = nowritekpoints
 		else:
 			with open(kwargs["kpoints"],"r") as rfile:
@@ -68,6 +75,9 @@ def compute(outdir, common ,**kwargs):
 	return result
 
 def stupidcompute(outdir, common, **kwargs):
+	"""
+	a stupid function to temporarily hse calculation
+	"""
 	import os
 	import pylada
 	from pylada.misc import Changedir
@@ -90,6 +100,9 @@ def stupidcompute(outdir, common, **kwargs):
 	return result
 
 def writeoptcell(outdir, optcell):
+	"""
+	write optcell in outdir. optcell is a list
+	"""
 	import os
 	if not os.path.exists(outdir):
 		os.makedirs(outdir)
@@ -97,6 +110,10 @@ def writeoptcell(outdir, optcell):
 		f.write("%d%d%d" % optcell)
 
 def aflowkpoints(outdir, poscarsource):
+	"""
+	using aflow to create kpoints
+	@param poscarsource: poscar path
+	"""
 	import os
 	outdir = gettmpdir()
 	copyorlinkfile(outdir, "POSCAR", poscarsource, "cp")
@@ -119,6 +136,9 @@ def aflowkpoints(outdir, poscarsource):
 
 
 def copyorlinkfile(outdir, filename, file, cmd):
+	"""
+	copying file with os.system
+	"""
 	import os
 	if cmd not in ["cp","ln -s"]:
 		raise Exception("only cp and ln -s")
@@ -132,12 +152,21 @@ def copyorlinkfile(outdir, filename, file, cmd):
 
 
 def getSpaceGroupName():
+	"""
+	@return spacegroup of poscar
+	"""
 	import os
 	for i in os.popen("aflow --kpath < POSCAR | grep Line -B 2 | head -n 1 | awk '{print $1}'"):
 		spacegroupname = i[:-1]
 	return spacegroupname
 
 def strainstructure(orgposcar, strain , direct):
+	"""
+	@param orgposcar: original poscar
+	@param strain: strain scale
+	@param direct: strain direction
+	@return poscar path of 
+	"""
 	import os
 	import numpy as np
 	from pylada.crystal import write,read
@@ -177,22 +206,35 @@ def poscarLoadingTools(path):
 		yield poscar
 
 def vaspkitkpoints(poscarsource, kpointtype = 2, kspacing = 0.03):
+	"""
+	@param poscarsource: poscar path
+	@param kpointtype: 1:Monkhorst 2:gamma(defualt) 
+	@param kspacing: vaspkit kspacing 0.03(default)
+	@return kpoints path
+	"""
 	import os
+	import simplecalc
 	outdir = gettmpdir()
 	copyorlinkfile(outdir, "POSCAR", poscarsource, "cp")
 	from pylada.misc import Changedir
 	with Changedir(outdir) as pwd:
-		os.system("""vaspkit <<EOF
+		os.system("""%s <<EOF
 7
 %d
 %.2f
 EOF
-""" % (kpointtype,kspacing))
+""" % (simplecalc.vaspkit,kpointtype,kspacing))
 		kpoints = os.path.abspath("KPOINTS")
 	return kpoints
 
 
 def hsekpoints(poscarsource, ibzkpt, symlsource = None):
+	"""
+	@param poscarsource: original poscar 
+	@param ibzkpt: ibzkpt for creating kpoints
+	@param symlsource: syml for creating kpoints
+	@return kpoints path in tmp
+	"""
 	import os
 	outdir = gettmpdir()
 	copyorlinkfile(outdir, "POSCAR", poscarsource, "cp")
@@ -240,9 +282,13 @@ def get_number(tstr ,number = 1,dtype = "float"):
 		result = [convert(i) for i in r]
 	return result
 
-def getEIGENVAL(path = "EIGENVAL"):
+def getEIGENVAL(eigenvalpath = "EIGENVAL"):
+	"""
+	@param: path of EIGENVAL (default EIGENVAL)
+	@return meta is data size, title is kpoints list, data is band data list.
+	"""
 	line = ""
-	with open(path,"r") as file:
+	with open(eigenvalpath,"r") as file:
 		[file.readline() for i in range(5)] # Discard the first 5 lines
 		line = file.readline()
 		meta = get_number(line,3,dtype="int")
@@ -255,6 +301,10 @@ def getEIGENVAL(path = "EIGENVAL"):
 	return meta,title,data
 
 def magmom(poscarsource):
+	"""
+	@param poscarsource: poscar path
+	@return string type magmom
+	"""
 	from pylada.crystal import read
 	structure = read.poscar(poscarsource)
 	magmom = "%d*0.6" % (len(structure) * 3)

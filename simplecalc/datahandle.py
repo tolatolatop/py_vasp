@@ -1,21 +1,8 @@
-from datatools import * 
-
-def bandDrawing(vasppath):
-	import os,re
-	with open(os.path.join(vasppath,"KPOINTS"),"r") as rfile:
-		tmp = rfile.readlines()
-	head = tmp[0];kint = int(tmp[1])
-	re_str = re.complie("[A-Z\-]+")
-	kpath = re_str.findall(head)
-	kpath = [i.splite("-") for i in kpath]
-	for line in kpath:
-		for keypoints in line:
-			pass
-
-def dosDrawing(vasppath):
-	pass
-
 def strainData(vasppath):
+	"""
+	@param vasppath: dirpath of hseband Calc
+	@return result of poscar property of xyz-length and abc-length
+	"""
 	from pylada.vasp import Extract
 	from numpy.linalg import norm
 	structure = Extract(vasppath).structure
@@ -32,6 +19,14 @@ def strainData(vasppath):
 	return result
 
 def poissonData(vasppathList, standpath, xaxis = "a-length", yaxis = "b-length"):
+	"""
+	@param vasppathlist: a list of vasppath like strain_1_b
+	@param standpath: a relax or other dir as stand
+	@param xaxis: data label to back
+		data label like xyz-length or abc-length
+	@param yaxis: data label to back
+	@return a dict {"xaxis":x-data,"yaxis",y-data}
+	"""
 	stand = strainData(standpath)
 	dataList = []
 	for vasppath in vasppathList:
@@ -47,6 +42,10 @@ def poissonData(vasppathList, standpath, xaxis = "a-length", yaxis = "b-length")
 
 
 def writeEIGENVAL_HSE(vasppath):
+	"""
+	@param:vasppath dirpath of hseband Calc
+	@result:hseband bata processing. Saving in EIGENVAL with a backup of original of EIGENVAL named EIGENVAL_BAK
+	"""
 	import os
 	currentpath = os.getcwd()
 	os.chdir(vasppath)

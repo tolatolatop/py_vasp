@@ -1,4 +1,7 @@
 def createBAND(fermi = None,savepath = "./bnd.dat"):
+	"""
+	@savepath 
+	"""
 	meta,title,data = getBandData("EIGENVAL")
 	with open(savepath,"w") as file:
 		for i in range(meta[1]):

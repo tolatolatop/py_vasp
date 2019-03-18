@@ -22,7 +22,7 @@ def relaxCalc(root, poscar, common = config.COMMON["nodeParams"], scan = False, 
 	job.params["writechg"] = False
 	job.params["writechg"] = False
 	job.params["maxLoop"] = 10
-	job.params["kpoints"] = tools.vaspkitkpoints(,job.params["poscar"])
+	job.params["kpoints"] = tools.vaspkitkpoints(job.params["poscar"])
 	job.params["poscar"] = root.name[1:] + "/poscar_all/" + poscar
 	job.params["potcar"] = re.findall("[a-zA-Z_]+",poscar.split("-")[1])
 	job.functional = tools.looptorelax

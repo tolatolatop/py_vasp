@@ -1,19 +1,24 @@
 from simplecalc import vutils,tools
 from simplecalc import config
-def poissonCalc(root, orgposcar, optcell = None ,kpointsCell = [40,40,40],
-		scales = [1.01, 0.99], inherit = True,
-		direction = ['a','b'], vacuum = "c", common = config.COMMON["nodeParams"],
-		scan = False):
+def poissonCalc(root, orgposcar, optcell = None ,kpointsCell = [40,40,0],
+		scales = [1.01, 0.99], direction = ['a','b'],
+		vacuum = "c", common = config.COMMON["nodeParams"]):
+
+	"""
+	@param root: pylada.jobfolder 
+	@param orgposcar: original poscar
+	@param optcell: optcell to relax
+	@param scales: float list to strain  
+	@param direction: direct list like ['a','b'] to strain
+	@param kpointsCell: set kpointsCell to create kpoints. zero for vacuum
+	@param vacuum: to set vacuum for relax
+	@warning you must prepare CONTCAR in relax
+	"""
 	import os
 	import re
 	potcar = re.findall("[a-zA-Z_]+",orgposcar.split("-")[1])
 	poissonJob = root / orgposcar / "poisson"
-
-	if inherit:
-		vutils.relaxCalc(root, orgposcar, common = common, scan = scan, optcell = optcell)
-		poscarpath = os.path.join(poissonJob.parent.name[1:],"relax","CONTCAR")
-	else:
-		poscarpath = os.path.join(root.name[1:],"poscar_all",orgposcar)
+	poscarpath = os.path.join(poissonJob.parent.name[1:],"relax","CONTCAR")
 
 	for direct in direction:
 		if vacuum == "c":
