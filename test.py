@@ -1,6 +1,4 @@
 from simplecalc import vutils,func,tools
-from simplecalc.datahandle import poissonData
-from simplecalc.datatools import create_plot_band_structure
 from pylada.jobfolder import JobFolder
 import pylada
 pylada.vasp_program="vasp_std"

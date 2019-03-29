@@ -19,11 +19,11 @@ def relaxCalc(root, poscar, common = config.COMMON["nodeParams"], scan = False, 
 		job.params["dfile"] = "incar_scan" 
 	else:
 		job.params["incar"] = root.name[1:] + "/incar/INCAR_RELAX_PBE"
-	job.params["writechg"] = False
+	job.params["writewave"] = False
 	job.params["writechg"] = False
 	job.params["maxLoop"] = 10
-	job.params["kpoints"] = tools.vaspkitkpoints(job.params["poscar"])
 	job.params["poscar"] = root.name[1:] + "/poscar_all/" + poscar
+	job.params["kpoints"] = tools.vaspkitkpoints(job.params["poscar"])
 	job.params["potcar"] = re.findall("[a-zA-Z_]+",poscar.split("-")[1])
 	job.functional = tools.looptorelax
 	job.compute(outdir = job.name[1:], maxLoop = job.params["maxLoop"])
@@ -131,6 +131,13 @@ def bandCalc(root, poscar, inherit = True, common = config.COMMON["nodeParams"],
 	job.compute(outdir = job.name[1:])
 
 def dosCalc(root, poscar, inherit = True, common = config.COMMON["nodeParams"], **kwargs):
+	"""
+	@param root: pylada.jobfolder.Jobfolder a root job for vasp file
+	@param poscar: standard vasp5 poscar file path with special name,like "POSCAR-Mo2Se"
+	@param commom: common set for pylada.vasp compute
+	@param inherit: whether loading relax contcar from poscar/relax
+	@param kwargs: other parameter of scfCalc
+	"""
 	import os
 	import re
 	job = root / poscar / "dos"
@@ -168,6 +175,13 @@ def strainCalc(job, poscar, potcar, optcell, scale, direct, kpointsCell, common 
 	job.compute(outdir = job.name[1:], maxLoop = job.params["maxLoop"])
 
 def hsebandCalc(root, poscar, inherit = True, common = config.COMMON["nodeParams"], **kwargs):
+	"""
+	@param root: pylada.jobfolder.Jobfolder a root job for vasp file
+	@param poscar: standard vasp5 poscar file path with special name,like "POSCAR-Mo2Se"
+	@param commom: common set for pylada.vasp compute
+	@param inherit: whether loading relax contcar from poscar/relax
+	@param kwargs: other parameter of scfCalc
+	"""
 	import os
 	import re
 	job = root / poscar / "hseband"
@@ -187,6 +201,13 @@ def hsebandCalc(root, poscar, inherit = True, common = config.COMMON["nodeParams
 	job.compute(outdir = job.name[1:])
 
 def optiCalc(root, poscar, inherit = True, common = config.COMMON["nodeParams"]):
+	"""
+	@param root: pylada.jobfolder.Jobfolder a root job for vasp file
+	@param poscar: standard vasp5 poscar file path with special name,like "POSCAR-Mo2Se"
+	@param commom: common set for pylada.vasp compute
+	@param inherit: whether loading relax contcar from poscar/relax
+	@param kwargs: other parameter of scfCalc
+	"""
 	import os
 	import re
 	job = root / poscar / "optic"

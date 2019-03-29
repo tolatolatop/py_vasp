@@ -218,7 +218,7 @@ def vaspkitkpoints(poscarsource, kpointtype = 2, kspacing = 0.03):
 	copyorlinkfile(outdir, "POSCAR", poscarsource, "cp")
 	from pylada.misc import Changedir
 	with Changedir(outdir) as pwd:
-		os.system("""%s <<EOF
+		os.system("""%s >/dev/null <<EOF
 7
 %d
 %.2f
