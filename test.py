@@ -10,7 +10,7 @@ for poscar in tools.poscarLoadingTools("./database/poscar_all"):
 	try:
 		func.poissonCalc(root,poscar,(40,40,0),(1,1,0),[1.02,1.01,1.05,0.95,0.99,0.98])
 		poijob = root / poscar / "poisson"
-		standjob = poijob / "strian_1_a"
+		standjob = poijob / "strain_1_a"
 		alist = [standjob.name[1:]]
 		for name in poijob.children.keys():
 			if "_a" in name:

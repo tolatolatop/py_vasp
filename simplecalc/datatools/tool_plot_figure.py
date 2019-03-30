@@ -157,13 +157,15 @@ def plot_band_structure(data_in_list = ["my_band.dat"], data_in_kpath = None,
     # Plot the fermi line
     plt.axhline(0, linestyle = "--", linewidth = 0.5, color = "green")
     # Finshed plotting the fermi line
-
     # Set the parameters of figure
     plt.xlim(list_band_col[0][0], list_band_col[0][-1])
     plt.ylim(fig_min, fig_max)
     if data_in_kpath != None:
         plt.xticks(list_k_col[dict_kpath["kpath_data"]],
                    list_k_col[dict_kpath["kpath_tag"]])
+    if cplot.cut_band:
+        plt.xlim(list_band_col[0][0], list_band_col[0][-1])
+        plt.ylim(fig_min, fig_max)
 
     my_figure = figure_save + "/" + figure_name
     plt.savefig(my_figure)

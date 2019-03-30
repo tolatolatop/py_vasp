@@ -50,7 +50,7 @@ def scfCalc(root, poscar,inherit = True, common = config.COMMON["nodeParams"],**
 			job.params["kpoints"] = os.path.join(job.parent.name[1:],"relax","KPOINTS")
 	else:
 		job.params["poscar"] = root.name[1:] + "/poscar_all/" + poscar
-		job.params["kpoints"] = root.name[1:] + "/kpoints/KPOINTS_SCF"
+		job.params["kpoints"] = tools.vaspkitkpoints(job.params["poscar"])
 	job.params["common"] = common
 	job.params["incar"] = root.name[1:] + "/incar/INCAR_SCF"
 	job.params["potcar"] = re.findall("[a-zA-Z_]+",poscar.split("-")[1])
@@ -145,7 +145,7 @@ def dosCalc(root, poscar, inherit = True, common = config.COMMON["nodeParams"], 
 	job.params["poscar"] = os.path.join(job.parent.name[1:],"scf","CONTCAR")
 	job.params["chgcar"] = os.path.join(job.parent.name[1:],"scf","CHGCAR")
 	job.params["wavecar"] = os.path.join(job.parent.name[1:],"scf","WAVECAR")
-	job.params["kpoints"] = os.path.join(job.parent.name[1:],"scf","KPOINTS")
+	job.params["kpoints"] = tools.vaspkitkpoints(job.params["poscar"],kspacing = 0.01)
 	job.params["writewave"] = False
 	job.params["writechg"] = False
 	job.params["common"] = common

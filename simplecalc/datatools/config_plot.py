@@ -30,4 +30,5 @@ dos_x_min = -10
 dos_x_max = 10
 dos_y_min = 0
 dos_y_max = 20
+cut_band = False
 #----------Finshed defining variables----------
