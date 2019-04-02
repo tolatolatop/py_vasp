@@ -42,7 +42,18 @@ def showopt(func):  # 输出选项
 	tmp_length = 0
 	into = 1
 	for i in g:
-		print(i)
+		if tmp_length == 0:
+			print(i,end="")
+			tmp_length += len(i)
+		elif tmp_length < (screen_size // 2):
+			print(" " * (screen_size // 2 - tmp_length),end ="")
+			print(i)
+			tmp_length = 0
+		else:
+			print()
+			print(i,end="")
+			tmp_length = len(i)
+
 	print()
 
 def getResource(file):
@@ -145,6 +156,7 @@ def setCalcFunc():
 	print(title_func(" Set Func"))
 	print(line[0] + "\t\t\t\t" + line[1])
 	print(line[2] + "\t\t\t\t" + line[3])
+	print()
 	opt = getInput("default(1):","1")
 	if opt == 1:
 		return "PBE"
@@ -205,7 +217,6 @@ if potcar_dict is None:
     with open(os.path.join(resource_path,"potcar_config"),"r") as rfile:
         q = rfile.readlines()
     for i in q:
-        print(i)
         i = i.replace("\n","")
         key,value = i.split("\t")
         potcar_dict[key] = value
@@ -424,7 +435,8 @@ def main():
 		showopt(post_func)
 		print(title_func(back_func_title))
 		showopt([quit_func])
-	while True:
+	quit_flag = False
+	while not quit_flag:
 		try:
 			show()
 			actions = getopt(total_func)
@@ -433,16 +445,16 @@ def main():
 				pass
 			else:
 				raise e
-
 		for action in actions:
 			try:
 				action()
 			except ValueError as e:
 				if QUITERROR in e.args[0]:
+					quit_flag = True
+				elif BACKERROR in e.args[0]:
 					break
 				else:
 					raise e
-		break
 	if len(startCalc) > 0:
 		qsub_func()
 	print(footer)
