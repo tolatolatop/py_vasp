@@ -32,7 +32,7 @@ back_func_title = " " * screen_size
 footer = '''
 '''
 startCalc = []
-resource_path = os.path.join(os.path.abspath(__file__),"resource")
+resource_path = os.path.join(os.path.dirname(os.path.abspath(__file__)),"resource")
 copyorlinkfile = tools.copyorlinkfile
 
 def showopt(func):  # 输出选项
