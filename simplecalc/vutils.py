@@ -13,7 +13,7 @@ def relaxCalc(root, poscar, common = config.COMMON["nodeParams"], optcell = None
 	job = root / poscar / "relax"
 	job.params["common"] = common
 	job.params["optcell"] = optcell
-	job.params["incar"] = "INCAR_RELAX"
+	job.params["incar"] = root.name[1:] + "/incar/INCAR_RELAX"
 	job.params["writewave"] = False
 	job.params["writechg"] = False
 	job.params["maxLoop"] = 10

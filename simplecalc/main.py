@@ -311,15 +311,19 @@ def drawingDos():
 def qsub_func():
 	print(title_func(" vasp program "))
 	vasp_program = input("default (vasp_std):")
-	copyorlinkfile(".","start.py",os.path.join(DATABASE,"start.py"),"cp")
-	tmp = getInput("nodes and ppn (default 1,28)","1,28")
-	nodes,ppn = eval(tmp)
+	if vasp_program == "":
+		vasp_program = "vasp_std"
+	copyorlinkfile(".","start.py",os.path.join(resource_path,"start.py"),"cp")
+	nodes,ppn = getInput("nodes and ppn (default 1,28)","1,28")
 	queue = input("queue: ")
 	mission = input("mission: ")
-	cmd = "python start.py " + "vasp_program"
+	optcell = input("optcell (None):")
+	if optcell == "":
+		optcell = "None"
+	cmd = "python start.py " + vasp_program + " "
 	for i in startCalc:
 		cmd += i + " "
-	cmd += str(optcell)
+	cmd += optcell
 	with open("pbs-config","w") as wfile:
 		wfile.write('''#!/bin/bash
 #PBS -N %s
