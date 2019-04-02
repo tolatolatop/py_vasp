@@ -297,7 +297,8 @@ def bandCalc():
 	startCalc.append("band")
 
 def findDirs(dirname):
-	g = (i + "/" + dirname for i in os.listdir() if os.path.exists(i + "/" + dirname))
+	g = (i + "/" + dirname for i in os.listdir(DATABASE) if os.path.exists(i + "/" + dirname))
+	return g
 
 def drawingBand():
 	from simplecalc.datatools import post_processing
