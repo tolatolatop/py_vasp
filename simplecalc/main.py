@@ -103,7 +103,7 @@ def createKpoints(kpointsName = "KPOINTS"):
 				print("plz input int,int,int like 40,40,0")
 		with open(os.path.join(kpointsdir,kpointsName),"w") as wfile:
 			wfile.write(CELLKPTHEADER)
-			wfile.write()
+			wfile.write("%d,%d,%d" % (a,b,c))
 
 	def hseKpoints(kpointsName = kpointsName):
 		kpointsdir = getkpointsdir()
@@ -122,11 +122,13 @@ def createKpoints(kpointsName = "KPOINTS"):
 		
 	vaspkitKpoints.id = 1
 	vaspkitKpoints.title = "1) vaspkit parameter"
+	hseKpoints.id = 2
+	hseKpoints.title = "2) hseKpoints parameter"
 	cellKpoints.id = 3
 	cellKpoints.title = "3) kpointscell parameter"
 	copyyourfile.id = 4
 	copyyourfile.title = "4) copy from path"
-	kpoint_func = [vaspkitKpoints,cellKpoints,copyyourfile] 
+	kpoint_func = [vaspkitKpoints,hseKpoints,cellKpoints,copyyourfile] 
 	excuteFunc(kpoint_func," set kpoints ")
 
 def setCalcFunc():
