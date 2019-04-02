@@ -126,8 +126,8 @@ def createKpoints(kpointsName = "KPOINTS"):
 	cellKpoints.title = "3) kpointscell parameter"
 	copyyourfile.id = 4
 	copyyourfile.title = "4) copy from path"
-	kpoint_func = [vaspkitKpoints,optcellKpoints,cellKpoints,copyyourfile] 
-	excuteFunc(kpoint_func)
+	kpoint_func = [vaspkitKpoints,cellKpoints,copyyourfile] 
+	excuteFunc(kpoint_func," set kpoints ")
 
 def setCalcFunc():
 	print(title_func(" Calc Func "))
