@@ -271,12 +271,13 @@ def loadKpoints(kpointsdir,calc_func,poscar,ibzkpt = None):
 	VASPKPTHEADER = "# vaspkit kpoints\n"
 	HSEKPTHEADER = "# hse kpoints\n"
 	CELLKPTHEADER = "# cell kpoints\n"
+	AFLOWHEADER = "# aflow kpoints\n"
 	if calc_func == "relax":
 		kpoints = "KPOINTS_RELAX"
 	elif calc_func == "scf":
 		kpoints = "KPOINTS_SCF"
 	elif calc_func == "band":
-		kpoints = None
+		kpoints = "KPOINTS_BAND"
 	elif calc_func == "dos":
 		kpoints = "KPOINTS_DOS"
 	with open(kpointsdir + "/" + kpoints,"r") as rfile:
@@ -290,7 +291,7 @@ def loadKpoints(kpointsdir,calc_func,poscar,ibzkpt = None):
 	elif hline == CELLKPTHEADER:
 		kpointscell = eval(pline)
 		return cellkpoints(poscar,kpointscell)
-	elif calc_func == "band":
+	elif hline == AFLOWHEADER:
 		return aflowkpoints(poscar)
 
 

@@ -8,6 +8,7 @@ NODIRERROR = "NODIR"
 VASPKPTHEADER = "# vaspkit kpoints\n"
 HSEKPTHEADER = "# hse kpoints\n"
 CELLKPTHEADER = "# cell kpoints\n"
+AFLOWHEADER = "# aflow kpoints\n"
 CANTFINDKPOINTS = "can't find "
 DATABASE = "./database"
 NFRESOURCE = "can't find resource "
@@ -110,6 +111,11 @@ def createKpoints(kpointsName = "KPOINTS"):
 		with open(os.path.join(kpointsdir,kpointsName),"w") as wfile:
 			wfile.write(HSEKPTHEADER)
 
+	def aflowKpoints(kpointsName = kpointsName):
+		kpointsdir = getkpointsdir()
+		with open(os.path.join(kpointsdir,kpointsName),"w") as wfile:
+			wfile.write(AFLOWHEADER)
+
 	def copyyourfile(kpointsName = kpointsName):
 		kpointsdir = getkpointsdir()
 		while True:
@@ -128,7 +134,9 @@ def createKpoints(kpointsName = "KPOINTS"):
 	cellKpoints.title = "3) kpointscell parameter"
 	copyyourfile.id = 4
 	copyyourfile.title = "4) copy from path"
-	kpoint_func = [vaspkitKpoints,hseKpoints,cellKpoints,copyyourfile] 
+	aflowKpoints.id = 5
+	aflowKpoints.title = "5) aflow parameter"
+	kpoint_func = [vaspkitKpoints,hseKpoints,cellKpoints,copyyourfile,aflowKpoints] 
 	excuteFunc(kpoint_func," set kpoints ")
 
 def setCalcFunc():
