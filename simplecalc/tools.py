@@ -50,28 +50,17 @@ def compute(outdir, common ,**kwargs):
 		copyorlinkfile(outdir, "CHGCAR", kwargs["chgcar"], "cp")
 	if "wavecar" in kwargs.keys():
 		copyorlinkfile(outdir, "WAVECAR", kwargs["wavecar"], "cp")
-	if "dfile" in kwargs.keys(): # write a describe file
-		if not os.path.exists(os.path.join(outdir,"DFILE")):
-			with open(os.path.join(outdir,"DFILE"),"w") as f:
-				f.write(kwargs["dfile"])
-	if "kpointscell" in kwargs.keys():
-		import numpy as np
-		kpoint = "Automatic generation\n0\nMonkhorst\n%d %d %d\n0 0 0"
-		diag = np.diag(structure.cell)
-		tmp = np.array(kwargs["kpointscell"]) // diag
-		tmp[tmp == 0] = 1
-		vasp.kpoints = kpoint % (tuple(tmp))
-	else:
-		if hasattr(vasp,"kspacing"): # can't work
-			vasp.write_kpoints = nowritekpoints
-		else:
-			with open(kwargs["kpoints"],"r") as rfile:
-				vasp.kpoints = rfile.read()
+	with open(kwargs["kpoints"],"r") as rfile:
+		vasp.kpoints = rfile.read()
 	try:
 		result = vasp(structure, outdir = outdir, comm = common)
 	except Exception as e:
 		print("path:" + outdir)
 		raise e
+	if "dfile" in kwargs.keys(): # write a describe file
+		if not os.path.exists(os.path.join(outdir,"DFILE")):
+			with open(os.path.join(outdir,"DFILE"),"w") as f:
+				f.write(kwargs["dfile"])
 	return result
 
 def stupidcompute(outdir, common, **kwargs):
@@ -109,7 +98,22 @@ def writeoptcell(outdir, optcell):
 	with open(os.path.join(outdir, "OPTCELL"),"w") as f:
 		f.write("%d%d%d" % optcell)
 
-def aflowkpoints(outdir, poscarsource):
+
+def cellkpoints(poscar, kpointscell):
+	import numpy as np
+	from pylada.crystal import read
+	import os
+	structure = read.poscar(poscar)
+	kpoint = "Automatic generation\n0\nMonkhorst\n%d %d %d\n0 0 0"
+	diag = np.diag(structure.cell)
+	tmp = np.array(kpointscell) // diag
+	tmp[tmp == 0] = 1
+	outdir = gettmpdir()
+	with open(os.path.join(outdir,"KPOINTS"),"w") as wfile:
+		wfile.write(kpoint % tuple(tmp))
+	return os.path.join(outdir,"KPOINTS")
+
+def aflowkpoints(poscarsource):
 	"""
 	using aflow to create kpoints
 	@param poscarsource: poscar path
@@ -261,6 +265,34 @@ def hsekpoints(poscarsource, ibzkpt, symlsource = None):
 
 def nowritekpoints(self, file, structure, kpoints=None):
 	pass
+
+
+def loadKpoints(kpointsdir,calc_func,poscar,ibzkpt = None):
+	VASPKPTHEADER = "# vaspkit kpoints\n"
+	HSEKPTHEADER = "# hse kpoints\n"
+	CELLKPTHEADER = "# cell kpoints\n"
+	if calc_func == "relax":
+		kpoints = "KPOINTS_RELAX"
+	elif calc_func == "scf":
+		kpoints = "KPOINTS_SCF"
+	elif calc_func == "band":
+		kpoints = None
+	elif calc_func == "dos":
+		kpoints = "KPOINTS_DOS"
+	with open(kpointsdir + "/" + kpoints,"r") as rfile:
+		hline = rfile.readline()
+		pline = rfile.readline()
+	if hline == VASPKPTHEADER:
+		ktype,kspacing = eval(pline)
+		return vaspkitkpoints(poscar,ktype,kspacing)
+	elif hline == HSEKPTHEADER:
+		return hsekpoints(poscar,ibzkpt)
+	elif hline == CELLKPTHEADER:
+		kpointscell = eval(pline)
+		return cellkpoints(poscar,kpointscell)
+	elif calc_func == "band":
+		return aflowkpoints(poscar)
+
 
 
 def get_number(tstr ,number = 1,dtype = "float"):

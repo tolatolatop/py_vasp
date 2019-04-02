@@ -1,0 +1,37 @@
+SYSTEM = BAND_HSE
+ICHARG = 11
+IBRION = -1
+NSW = 0
+NELM = 100
+ISMEAR = 0
+SIGMA = 0.05
+POTIM = 0.2
+LWAVE = T
+LCHARG = T
+PREC = Accurate
+ALGO = Normal
+ENCUT = 500
+EDIFF = 1E-8
+#ISIF = 3
+NPAR = 4
+LORBIT = 11
+LREAL = F
+
+#ISYM = 1
+#ISYMPREC = 1E-8
+
+#----------optB88----------
+#GGA = BO
+#PARAM1 = 0.1833333333
+#PARAM2 = 0.2200000000
+#LUSE_VDW = .TRUE.
+#AGGAC = 0.0000
+#----------Polarization----------
+ISPIN = 1
+#LNONCOLLINEAR = T
+#MAGMOM = 15*1  # Here, I set the parameter ISPIN to 1
+#LSORBIT = T # SOC
+#SAXIS = 0 0 1
+#GGA_COMPAT = F
+#---------KPOINTS---------
+#KSPACING = 0.3
