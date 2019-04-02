@@ -122,8 +122,6 @@ def createKpoints(kpointsName = "KPOINTS"):
 		
 	vaspkitKpoints.id = 1
 	vaspkitKpoints.title = "1) vaspkit parameter"
-	optcellKpoints.id = 2
-	optcellKpoints.title = "2) optcell parameter"
 	cellKpoints.id = 3
 	cellKpoints.title = "3) kpointscell parameter"
 	copyyourfile.id = 4
