@@ -72,7 +72,7 @@ def createKpoints(kpointsName = "KPOINTS"):
 	def getkpointsdir():
 		kpointsdir = os.path.join(DATABASE,"kpoints")
 		if not os.path.exists(kpointsdir):
-			os.path.makedirs(kpointsdir)
+			os.makedirs(kpointsdir)
 		return kpointsdir
 
 	def vaspkitKpoints(kpointsName = kpointsName):
@@ -314,8 +314,9 @@ def qsub_func():
 	copyorlinkfile(".","start.py",os.path.join(DATABASE,"start.py"),"cp")
 	tmp = getInput("nodes and ppn (default 1,28)","1,28")
 	nodes,ppn = eval(tmp)
-	queue = input("queue:")
-	cmd = "python start.py "
+	queue = input("queue: ")
+	mission = input("mission: ")
+	cmd = "python start.py " + "vasp_program"
 	for i in startCalc:
 		cmd += i + " "
 	cmd += str(optcell)
@@ -336,7 +337,7 @@ cat $PBS_NODEFILE | sed 's/node/nodeib/' > ./pbsnode
 pushd `pwd`
 %s
 popd
-''')
+''' % (mission,nodes,ppn,queue,cmd))
 
 
 
@@ -425,11 +426,10 @@ def main():
 				action()
 			except ValueError as e:
 				if QUITERROR in e.args[0]:
-					exit(0)
-				elif BACKERROR in e.args[0]:
-					pass
+					break
 				else:
 					raise e
+		break
 	if len(startCalc) > 0:
 		qsub_func()
 	print(footer)
