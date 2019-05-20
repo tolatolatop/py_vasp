@@ -6,7 +6,8 @@ root = JobFolder()
 root = root / "database"
 for poscar in tools.poscarLoadingTools("./database/poscar_all"):
 	#print(poscar)
-	#vutils.relaxCalc(root,poscar)
+	vutils.relaxCalc(root,poscar)
+	vutils.scfCalc(root,poscar)
 	try:
 		func.poissonCalc(root,poscar,(40,40,0),(1,1,0),[1.02,1.01,1.05,0.95,0.99,0.98])
 		poijob = root / poscar / "poisson"

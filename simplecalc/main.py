@@ -153,7 +153,7 @@ def createKpoints(kpointsName = "KPOINTS"):
 def setCalcFunc():
 	print(title_func(" Calc Func "))
 	line = ["1) pbe","2) scan","3) soc","4) hse"]
-	print(title_func(" Set Func"))
+	print(title_func(" Set Func "))
 	print(line[0] + "\t\t\t\t" + line[1])
 	print(line[2] + "\t\t\t\t" + line[3])
 	print()
@@ -281,6 +281,7 @@ def createPoscar():
 		index += 1
 
 def getopt(total_func):  # 利用action.id 解析输入
+	print("-------------->>")
 	optlist = input("")
 	action_func = []
 	for i in optlist.split("-"):
@@ -401,6 +402,7 @@ def excuteFunc(func_list, title, back_func = back_func, quit_func = quit_func):
 			if hasattr(quit_func,"__call__"):
 				back_quit_func.append(quit_func)
 			if len(back_quit_func) > 0:
+				print()
 				showopt(back_quit_func)
 			total_func = []
 			total_func.extend(func_list)

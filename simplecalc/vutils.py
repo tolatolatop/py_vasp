@@ -23,7 +23,6 @@ def relaxCalc(root, poscar, common = config.COMMON["nodeParams"], optcell = None
 	job.functional = tools.looptorelax
 	job.compute(outdir = job.name[1:], maxLoop = job.params["maxLoop"])
 
-	
 
 def scfCalc(root, poscar,inherit = True, common = config.COMMON["nodeParams"],**kwargs):
 	"""
