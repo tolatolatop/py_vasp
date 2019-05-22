@@ -293,6 +293,8 @@ def loadKpoints(kpointsdir,calc_func,poscar,ibzkpt = None):
 		return cellkpoints(poscar,kpointscell)
 	elif hline == AFLOWHEADER:
 		return aflowkpoints(poscar)
+	else:
+		return kpointsdir + "/" + kpoints
 
 
 

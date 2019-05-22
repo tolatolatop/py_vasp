@@ -18,7 +18,7 @@ def relaxCalc(root, poscar, common = config.COMMON["nodeParams"], optcell = None
 	job.params["writechg"] = False
 	job.params["maxLoop"] = 10
 	job.params["poscar"] = root.name[1:] + "/poscar_all/" + poscar
-	job.params["kpoints"] = tools.loadKpoints(root.name[1:] + "/kpoints","relax",job.params["poscar"])
+	job.params["kpoints"] = tools.loadKpoints(root.name[1:] + "kpoints","relax",job.params["poscar"])
 	job.params["potcar"] = re.findall("[a-zA-Z_]+",poscar.split("-")[1])
 	job.functional = tools.looptorelax
 	job.compute(outdir = job.name[1:], maxLoop = job.params["maxLoop"])
@@ -40,7 +40,7 @@ def scfCalc(root, poscar,inherit = True, common = config.COMMON["nodeParams"],**
 		job.params["poscar"] = os.path.join(job.parent.name[1:],"relax","CONTCAR")
 	else:
 		job.params["poscar"] = root.name[1:] + "/poscar_all/" + poscar
-	job.params["kpoints"] = tools.loadKpoints(root.name[1:] + "/kpoints","scf",job.params["poscar"])
+	job.params["kpoints"] = tools.loadKpoints(root.name[1:] + "kpoints","scf",job.params["poscar"])
 	job.params["common"] = common
 	job.params["incar"] = root.name[1:] + "/incar/INCAR_SCF"
 	job.params["potcar"] = re.findall("[a-zA-Z_]+",poscar.split("-")[1])
@@ -65,7 +65,7 @@ def bandCalc(root, poscar, inherit = True, common = config.COMMON["nodeParams"],
 	job.params["writewave"] = False
 	job.params["writechg"] = False
 	job.params["common"] = common
-	job.params["kpoints"] = tools.loadKpoints(root.name[1:] + "/kpoints","band",job.params["poscar"])
+	job.params["kpoints"] = tools.loadKpoints(root.name[1:] + "kpoints","band",job.params["poscar"])
 	job.params["incar"] = root.name[1:] + "/incar/INCAR_BAND"
 	job.params["potcar"] = re.findall("[a-zA-Z_]+",poscar.split("-")[1])
 	job.functional = tools.compute
@@ -86,7 +86,7 @@ def dosCalc(root, poscar, inherit = True, common = config.COMMON["nodeParams"], 
 	job.params["poscar"] = os.path.join(job.parent.name[1:],"scf","CONTCAR")
 	job.params["chgcar"] = os.path.join(job.parent.name[1:],"scf","CHGCAR")
 	job.params["wavecar"] = os.path.join(job.parent.name[1:],"scf","WAVECAR")
-	job.params["kpoints"] = tools.loadKpoints(root.name[1:] + "/kpoints","dos",job.params["poscar"])
+	job.params["kpoints"] = tools.loadKpoints(root.name[1:] + "kpoints","dos",job.params["poscar"])
 	job.params["writewave"] = False
 	job.params["writechg"] = False
 	job.params["common"] = common
@@ -110,7 +110,7 @@ def strainCalc(job, poscar, potcar, optcell, scale, direct, kpointsCell, common 
 	job.params["maxLoop"] = 10
 	job.params["poscar"] = poscar
 	job.params["optcell"] = optcell
-	job.params["kpoints"] = tools.loadKpoints(root.name[1:] + "/kpoints","strain",job.params["poscar"])
+	job.params["kpoints"] = tools.loadKpoints(root.name[1:] + "kpoints","strain",job.params["poscar"])
 	job.params["potcar"] = potcar
 	job.functional = tools.looptorelax
 	job.compute(outdir = job.name[1:], maxLoop = job.params["maxLoop"])
